@@ -1,6 +1,8 @@
 package sirup.service.java.generator.implmentations.api;
 
-import sirup.service.java.generator.interfaces.IApi;
+import sirup.service.java.generator.interfaces.api.IApi;
+
+import java.io.FileWriter;
 
 public final class GraphQL extends AbstractApi implements IApi {
     @Override
@@ -14,7 +16,7 @@ public final class GraphQL extends AbstractApi implements IApi {
     }
 
     @Override
-    public void generate() {
+    public void fillFile(FileWriter fileWriter) {
 
     }
 }

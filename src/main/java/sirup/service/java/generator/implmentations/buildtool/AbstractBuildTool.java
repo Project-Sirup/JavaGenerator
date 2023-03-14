@@ -1,6 +1,6 @@
 package sirup.service.java.generator.implmentations.buildtool;
 
-import sirup.service.java.generator.interfaces.Generateable;
+import sirup.service.java.generator.interfaces.common.Generateable;
 
 public abstract class AbstractBuildTool implements Generateable {
 
@@ -12,7 +12,17 @@ public abstract class AbstractBuildTool implements Generateable {
     }
 
     @Override
-    public String packageName() {
+    public String getPackageName() {
         return "";
+    }
+
+    @Override
+    public String getDir() {
+        return "";
+    }
+
+    @Override
+    public String getImportString() {
+        return this.getPackageName() + "." + this.getName();
     }
 }

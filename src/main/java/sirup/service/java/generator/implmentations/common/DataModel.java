@@ -1,4 +1,4 @@
-package sirup.service.java.generator.implmentations.misc;
+package sirup.service.java.generator.implmentations.common;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,13 +1,19 @@
 package sirup.service.java.generator.implmentations.api;
 
-import sirup.service.java.generator.implmentations.misc.Endpoint;
-import sirup.service.java.generator.interfaces.IApi;
+import sirup.service.java.generator.implmentations.common.ClassGenerator;
+import sirup.service.java.generator.implmentations.common.DataField;
+import sirup.service.java.generator.implmentations.common.Endpoint;
+import sirup.service.java.generator.interfaces.api.IApi;
+import sirup.service.java.generator.interfaces.api.IApiBuilder;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static sirup.service.java.generator.implmentations.misc.Endpoint.Method.*;
+import static sirup.service.java.generator.implmentations.common.ClassGenerator.*;
+import static sirup.service.java.generator.implmentations.common.Endpoint.Method.*;
 
 public final class Rest extends AbstractApi implements IApi {
 
@@ -34,13 +40,13 @@ public final class Rest extends AbstractApi implements IApi {
         this.endpoints.add(endpoint);
     }
 
-    public static RestBuilder builder() {
+    static RestBuilder builder() {
         return new RestBuilder();
     }
 
     @Override
     public String getName() {
-        return "REST";
+        return "Rest";
     }
 
     @Override
@@ -48,12 +54,24 @@ public final class Rest extends AbstractApi implements IApi {
         return "apache spark";
     }
 
-    @Override
-    public void generate() {
+    private static final DataField request = new DataField(DataField.Type.REQUEST, "request");
+    private static final DataField response = new DataField(DataField.Type.RESPONSE, "response");
 
+    @Override
+    public void fillFile(FileWriter fileWriter) throws IOException {
+        fileWriter.write(packageString(this.getPackageName()));
+        fileWriter.write(staticImportString("spark.Spark.*"));
+        generateClass(fileWriter, this.getName(), () -> {
+            generateMethod(fileWriter, "start", DataField.Type.VOID, null, () -> {
+                for (Endpoint endpoint : this.endpoints) {
+                    fileWriter.write("\t\t" + endpoint.method().method + "(\"" + endpoint.path() +
+                            "\", ((request, response) -> \"todo\"));\n");
+                }
+            });
+        });
     }
 
-    public static class RestBuilder {
+    public static class RestBuilder implements IApiBuilder<Rest> {
         private final Rest rest;
         private RestBuilder() {
             this.rest = new Rest();
@@ -67,6 +85,7 @@ public final class Rest extends AbstractApi implements IApi {
             return this;
         }
 
+        @Override
         public Rest build() {
             return this.rest;
         }
