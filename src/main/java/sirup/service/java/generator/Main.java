@@ -6,6 +6,7 @@ import sirup.service.java.generator.implmentations.api.Rest;
 import sirup.service.java.generator.implmentations.buildtool.BuildTools;
 import sirup.service.java.generator.implmentations.buildtool.Maven;
 import sirup.service.java.generator.implmentations.common.DataField;
+import sirup.service.java.generator.implmentations.common.EndpointGroup;
 import sirup.service.java.generator.implmentations.database.Databases;
 import sirup.service.java.generator.implmentations.database.PostgreSQL;
 import sirup.service.java.generator.implmentations.common.DataModel;
@@ -20,17 +21,26 @@ import static sirup.service.java.generator.implmentations.common.DataField.Type.
 public class Main {
     public static void main(String[] args) {
         // ----- Test data ----- Will come from json -----
-        String serviceName = "macro";
-        String packageName = "dk.sdu.mmmi";
+        String serviceName = "marco";
+        String packageName = "dk.smu.mmmi";
+        EndpointGroup userGroup = EndpointGroup.builder()
+                .groupName("/user")
+                .endpoint(GET, "/:userId")
+                .endpoint(GET, "")
+                .endpoint(POST, "")
+                .endpoint(PUT, "")
+                .endpoint(DELETE, "/:userId")
+                .build();
+        EndpointGroup v1Grouo = EndpointGroup.builder()
+                .groupName("/v1")
+                .innerGrouo(userGroup)
+                .build();
+        EndpointGroup apiGroup = EndpointGroup.builder()
+                .groupName("/api")
+                .innerGrouo(v1Grouo)
+                .build();
 
-        List<Endpoint> endpoints = new ArrayList<>(){{
-            add(new Endpoint(GET, "/api/v1/user/:userId"));
-            add(new Endpoint(GET ,"/api/v1/user"));
-            add(new Endpoint(POST, "/api/v1/user"));
-            add(new Endpoint(PUT, "/api/v1/user"));
-            add(new Endpoint(DELETE, "/api/v1/user/:userId"));
-        }};
-
+        String dataModelName = "user";
         List<DataField> dataFields = new ArrayList<>(){{
            add(new DataField(STRING, "name"));
            add(new DataField(STRING, "password"));
@@ -41,12 +51,12 @@ public class Main {
 
         // ----- Rest Builder -----
         Rest.RestBuilder restBuilder = APIs.restBuilder();
-        endpoints.forEach(restBuilder::endpoint);
+        restBuilder.endpontGroup(apiGroup);
 
         // ----- Database Builder -----
         PostgreSQL.PostgreSQLBuilder postgreSQLBuilder = Databases.postgreSQLBuilder();
 
-        DataModel.DataModelBuilder dataModelBuilder = DataModel.builder().name("user");
+        DataModel.DataModelBuilder dataModelBuilder = DataModel.builder().name(dataModelName);
         dataFields.forEach(dataModelBuilder::dataField);
 
         postgreSQLBuilder.dataModel(dataModelBuilder);
@@ -64,7 +74,7 @@ public class Main {
                 .buildTool(mavenBuilder)
                 .build();
 
-        System.out.println(microservice);
+        //System.out.println(microservice);
         microservice.make();
     }
 }
