@@ -10,12 +10,18 @@ public record DataField(Type type, String name) {
         FLOAT("float"),
         BOOLEAN("boolean"),
         VOID("void"),
+        OBJECT("Object"),
         REQUEST("Request"),
         RESPONSE("Response"),
-        CONNECTION("Connection");
-        public final String type;
+        CONNECTION("Connection"),
+        CUSTOM("");
+        public String type;
         Type(String type) {
             this.type = type;
+        }
+        public static Type custom(String customType) {
+            CUSTOM.type = StringUtil.capitalize(customType);
+            return CUSTOM;
         }
     }
 }

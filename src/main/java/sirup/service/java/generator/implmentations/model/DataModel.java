@@ -1,9 +1,18 @@
-package sirup.service.java.generator.implmentations.common;
+package sirup.service.java.generator.implmentations.model;
 
+import sirup.service.java.generator.implmentations.common.AbstractGenerateable;
+import sirup.service.java.generator.implmentations.common.ClassGenerator;
+import sirup.service.java.generator.implmentations.common.DataField;
+import sirup.service.java.generator.implmentations.common.StringUtil;
+
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DataModel {
+import static sirup.service.java.generator.implmentations.common.ClassGenerator.*;
+
+public class DataModel extends AbstractGenerateable {
     private String name = "DEFAULT";
     private final List<DataField> dataFields;
 
@@ -15,12 +24,35 @@ public class DataModel {
         this.name = name;
     }
 
+    public String getName() {
+        return StringUtil.capitalize(this.name);
+    }
+
     private void addDataField(DataField dataField) {
         this.dataFields.add(dataField);
     }
 
+    public List<DataField> getDataFields() {
+        return this.dataFields;
+    }
+
     public static DataModelBuilder builder() {
         return new DataModelBuilder();
+    }
+
+    @Override
+    public void fillFile(FileWriter fileWriter) throws IOException {
+        ClassGenerator classGenerator = new ClassGenerator(fileWriter, this);
+        classGenerator.generateRecord(() -> {
+            //imports
+        }, this, () -> {
+            //record body
+        });
+    }
+
+    @Override
+    public void setPackageName(String packageName) {
+        this.packageName = packageName + ".models";
     }
 
     public static class DataModelBuilder {

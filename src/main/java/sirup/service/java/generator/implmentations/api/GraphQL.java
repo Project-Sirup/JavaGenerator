@@ -4,7 +4,7 @@ import sirup.service.java.generator.interfaces.api.IApi;
 
 import java.io.FileWriter;
 
-public final class GraphQL extends AbstractApi implements IApi {
+public final class GraphQL extends AbstractApi {
     @Override
     public String getName() {
         return "GraphQL";

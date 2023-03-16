@@ -25,7 +25,7 @@ public class FileGenerator {
             String filePath =
                     outerName + "/" +
                     generateable.getDir() + "/" +
-                    StringUtil.capitalize(generateable.getName()) + ".java";
+                    capitalize(generateable.getName()) + ".java";
             File file = new File(filePath);
             file.createNewFile();
             FileWriter fileWriter = new FileWriter(file);
@@ -49,11 +49,13 @@ public class FileGenerator {
             e.printStackTrace();
         }
     }
-    public void generateBase() {
+    public void generateFileStructure() {
         new File(outerName + "/" + SOURCE_DIR + "/" + basePackageDir).mkdirs();
         new File(outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/api").mkdirs();
         new File(outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/database").mkdirs();
         new File(outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/controllers").mkdirs();
+        new File(outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/services").mkdirs();
+        new File(outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/models").mkdirs();
         new File(outerName + "/" + RESOURCES_DIR).mkdirs();
         new File(outerName + "/" + TEST_DIR).mkdirs();
     }

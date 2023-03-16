@@ -1,9 +1,7 @@
 package sirup.service.java.generator.implmentations.api;
 
-import sirup.service.java.generator.implmentations.common.ClassGenerator;
-import sirup.service.java.generator.implmentations.common.DataField;
-import sirup.service.java.generator.implmentations.common.Endpoint;
-import sirup.service.java.generator.implmentations.common.EndpointGroup;
+import sirup.service.java.generator.implmentations.common.*;
+import sirup.service.java.generator.implmentations.controller.Controller;
 import sirup.service.java.generator.interfaces.api.IApi;
 import sirup.service.java.generator.interfaces.api.IApiBuilder;
 
@@ -14,10 +12,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static sirup.service.java.generator.implmentations.common.ClassGenerator.*;
-import static sirup.service.java.generator.implmentations.common.Endpoint.Method.*;
+import static sirup.service.java.generator.implmentations.common.Endpoint.HttpMethod.*;
 import static sirup.service.java.generator.implmentations.common.DataField.Type.*;
 
-public final class Rest extends AbstractApi implements IApi {
+public final class Rest extends AbstractApi {
 
     private final List<Endpoint> endpoints;
     private final List<EndpointGroup> endpointGroups;
@@ -28,7 +26,7 @@ public final class Rest extends AbstractApi implements IApi {
         EndpointGroup baseGroup = EndpointGroup
                 .builder()
                 .groupName("/api/v1")
-                .endpoint(new Endpoint(GET, ""))
+                .endpoint(new Endpoint(GET, "", null))
                 .build();
         DEFAULT.addEndpointGroup(baseGroup);
     }
@@ -36,6 +34,7 @@ public final class Rest extends AbstractApi implements IApi {
     private Rest() {
         this.endpoints = new ArrayList<>();
         this.endpointGroups = new ArrayList<>();
+        this.controllers = new ArrayList<>();
     }
 
     @Override
@@ -51,6 +50,15 @@ public final class Rest extends AbstractApi implements IApi {
 
     private void addEndpointGroup(EndpointGroup endpointGroup) {
         this.endpointGroups.add(endpointGroup);
+        updateControllers(endpointGroup);
+    }
+    private void updateControllers(EndpointGroup endpointGroup) {
+        if (endpointGroup.getController() != null) {
+            this.controllers.add(endpointGroup.getController());
+        }
+        for (EndpointGroup innerGroup : endpointGroup.getInnerGroups()) {
+            updateControllers(innerGroup);
+        }
     }
 
     static RestBuilder builder() {
@@ -72,36 +80,52 @@ public final class Rest extends AbstractApi implements IApi {
 
     @Override
     public void fillFile(FileWriter fileWriter) throws IOException {
-        fileWriter.write(packageString(this.getPackageName()));
-        fileWriter.write(staticImportString("spark.Spark.*"));
-        generateClass(fileWriter, this.getName(), () -> {
-            generateMethod(fileWriter, "start", VOID, null, () -> {
-                if (this.endpointGroups.size() == 0) {
-                    wrtieEndpoints(fileWriter, "", this.endpoints);
+        ClassGenerator classGenerator = new ClassGenerator(fileWriter, this);
+        classGenerator.generateClass(() -> {
+            for (Controller controller : this.controllers) {
+                classGenerator.generateImport(controller.getImportString());
+            }
+            classGenerator.generateStaticImport("spark.Spark.*");
+        }, () -> {
+            classGenerator.generateMethod("start", VOID, null, () -> {
+                if (this.endpointGroups.isEmpty()) {
+                    writeEndpoints(fileWriter, classGenerator,null,"", this.endpoints);
                 }
                 else {
-                    recursiveEndpintGroups(fileWriter, this.endpointGroups.get(0), "", 0);
+                    recursiveEndpointGroups(fileWriter, classGenerator, this.endpointGroups.get(0), "", 0);
                 }
             });
         });
     }
 
-    private void recursiveEndpintGroups(FileWriter fileWriter, EndpointGroup endpointGroup, String groupPath, int index) throws IOException {
-        System.out.println(groupPath);
-        System.out.println(index + " " + endpointGroup.getInnerGroup().size());
-        if (endpointGroup.getInnerGroup().size() == 0) {
-            wrtieEndpoints(fileWriter, groupPath, endpointGroup.getEndpoints());
-            return;
+    private void recursiveEndpointGroups(FileWriter fileWriter, ClassGenerator classGenerator, EndpointGroup endpointGroup, String groupPath, int index) throws IOException {
+        if (!endpointGroup.getEndpoints().isEmpty()) {
+            writeEndpoints(fileWriter, classGenerator, endpointGroup.getController(),groupPath + endpointGroup.getGroupName(), endpointGroup.getEndpoints());
         }
-        for (EndpointGroup innerGroup : endpointGroup.getInnerGroup()) {
-            recursiveEndpintGroups(fileWriter, innerGroup, groupPath + endpointGroup.getGroupName(), index);
+        for (EndpointGroup innerGroup : endpointGroup.getInnerGroups()) {
+            recursiveEndpointGroups(fileWriter, classGenerator, innerGroup, groupPath + endpointGroup.getGroupName(), index);
         }
         ++index;
     }
-    private void wrtieEndpoints(FileWriter fileWriter, String groupName, List<Endpoint> endpoints) throws IOException {
-        for (Endpoint endpoint : endpoints) {
-            fileWriter.write("\t\t" + endpoint.method().method + "(\"" + groupName + endpoint.path() +
-                    "\", ((request, response) -> \" " + endpoint.method().method + "\"));\n");
+    private void writeEndpoints(FileWriter fileWriter, ClassGenerator classGenerator, Controller controller, String groupName, List<Endpoint> endpoints) throws IOException {
+        if (controller != null) {
+            DataField.Type controllerType = DataField.Type.custom(controller.getName());
+            fileWriter.write("\n");
+            classGenerator.generateMethodVar(controller.getName(), controllerType, "new " + controllerType.type + "()");
+            for (Endpoint endpoint : endpoints) {
+                System.out.println(groupName + endpoint.path());
+                String method = controller.addMethod(endpoint.linkedMethodName());
+                fileWriter.write("\t\t" + endpoint.method().method + "(\"" + groupName + endpoint.path() +
+                        "\", " + controller.getName() + "::" + method + ");\n");
+            }
+        }
+        else {
+            fileWriter.write("\n");
+            for (Endpoint endpoint : endpoints) {
+                System.out.println(groupName + endpoint.path());
+                fileWriter.write("\t\t" + endpoint.method().method + "(\"" + groupName + endpoint.path() +
+                        "\", ((req, res) -> \"" + endpoint.method().method + "\"));\n");
+            }
         }
     }
 
@@ -111,14 +135,14 @@ public final class Rest extends AbstractApi implements IApi {
             this.rest = new Rest();
         }
 
-        public RestBuilder endpoint(Endpoint.Method method, String path) {
-            return this.endpoint(new Endpoint(method, path));
+        public RestBuilder endpoint(Endpoint.HttpMethod httpMethod, String path, String linkedMethodName) {
+            return this.endpoint(new Endpoint(httpMethod, path, linkedMethodName));
         }
         public RestBuilder endpoint(Endpoint endpoint) {
             this.rest.addEndpoint(endpoint);
             return this;
         }
-        public RestBuilder endpontGroup(EndpointGroup endpointGroup) {
+        public RestBuilder endpointGroup(EndpointGroup endpointGroup) {
             this.rest.addEndpointGroup(endpointGroup);
             return this;
         }

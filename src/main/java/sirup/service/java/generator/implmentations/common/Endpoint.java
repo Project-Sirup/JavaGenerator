@@ -1,19 +1,19 @@
 package sirup.service.java.generator.implmentations.common;
 
-public record Endpoint(Method method, String path) {
+public record Endpoint(HttpMethod method, String path, String linkedMethodName) {
 
     @Override
     public String toString() {
         return method().name() + " :: " + path();
     }
 
-    public enum Method {
+    public enum HttpMethod {
         GET("get"),
         POST("post"),
         PUT("put"),
         DELETE("delete");
         public final String method;
-        Method(String method) {
+        HttpMethod(String method) {
             this.method = method;
         }
     }

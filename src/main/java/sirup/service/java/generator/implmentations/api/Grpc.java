@@ -5,7 +5,7 @@ import sirup.service.java.generator.interfaces.api.IApiBuilder;
 
 import java.io.FileWriter;
 
-public final class Grpc extends AbstractApi implements IApi {
+public final class Grpc extends AbstractApi {
 
     private Grpc() {}
 

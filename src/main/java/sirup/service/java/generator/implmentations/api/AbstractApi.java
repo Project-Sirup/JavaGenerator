@@ -1,11 +1,14 @@
 package sirup.service.java.generator.implmentations.api;
 
-import sirup.service.java.generator.implmentations.common.StringUtil;
-import sirup.service.java.generator.interfaces.common.Generateable;
+import sirup.service.java.generator.implmentations.common.AbstractGenerateable;
+import sirup.service.java.generator.implmentations.controller.Controller;
+import sirup.service.java.generator.interfaces.api.IApi;
 
-public abstract class AbstractApi implements Generateable {
+import java.util.List;
 
-    protected String packageName;
+public abstract class AbstractApi extends AbstractGenerateable implements IApi {
+
+    protected List<Controller> controllers;
 
     @Override
     public void setPackageName(String packageName) {
@@ -13,17 +16,7 @@ public abstract class AbstractApi implements Generateable {
     }
 
     @Override
-    public String getPackageName() {
-        return this.packageName;
-    }
-
-    @Override
-    public String getDir() {
-        return StringUtil.SOURCE_DIR + "/" + this.getPackageName().replace(".", "/");
-    }
-
-    @Override
-    public String getImportString() {
-        return this.getPackageName() + "." + this.getName();
+    public List<Controller> getControllers() {
+        return this.controllers;
     }
 }

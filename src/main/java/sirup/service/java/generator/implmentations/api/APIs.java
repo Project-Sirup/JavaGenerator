@@ -7,4 +7,7 @@ public final class APIs {
     public static Grpc.GrpcBuilder grpcBuilder() {
         return Grpc.builder();
     }
+    public static GraphQL graphQL() {
+        return new GraphQL();
+    }
 }
