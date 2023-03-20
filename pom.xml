@@ -24,7 +24,7 @@
                     <target>17</target>
                 </configuration>
             </plugin>
-<!--            <plugin>
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.0.0</version>
@@ -38,7 +38,7 @@
                 <configuration>
                     <mainClass>sirup.service.java.generator.Main</mainClass>
                 </configuration>
-            </plugin>-->
+            </plugin>
         </plugins>
     </build>
 

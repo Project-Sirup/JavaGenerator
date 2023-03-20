@@ -11,6 +11,11 @@ public abstract class AbstractBuildTool extends AbstractGenerateable {
     }
 
     @Override
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
+    }
+
+    @Override
     public String getDir() {
         return "";
     }

@@ -5,10 +5,6 @@ import sirup.service.java.generator.interfaces.common.Generateable;
 public abstract class AbstractGenerateable implements Generateable {
 
     protected String packageName;
-    @Override
-    public void setPackageName(String packageName) {
-        this.packageName = packageName + ".api";
-    }
 
     @Override
     public String getPackageName() {

@@ -1,8 +1,10 @@
 package sirup.service.java.generator.implmentations.api;
 
 import sirup.service.java.generator.implmentations.common.*;
+import sirup.service.java.generator.implmentations.common.classgeneration.Access;
+import sirup.service.java.generator.implmentations.common.classgeneration.ClassGenerator;
+import sirup.service.java.generator.implmentations.common.classgeneration.ClassTypes;
 import sirup.service.java.generator.implmentations.controller.Controller;
-import sirup.service.java.generator.interfaces.api.IApi;
 import sirup.service.java.generator.interfaces.api.IApiBuilder;
 
 import java.io.FileWriter;
@@ -11,9 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static sirup.service.java.generator.implmentations.common.ClassGenerator.*;
 import static sirup.service.java.generator.implmentations.common.Endpoint.HttpMethod.*;
-import static sirup.service.java.generator.implmentations.common.DataField.Type.*;
+import static sirup.service.java.generator.implmentations.common.Type.*;
 
 public final class Rest extends AbstractApi {
 
@@ -35,6 +36,7 @@ public final class Rest extends AbstractApi {
         this.endpoints = new ArrayList<>();
         this.endpointGroups = new ArrayList<>();
         this.controllers = new ArrayList<>();
+        this.port = 4567;
     }
 
     @Override
@@ -51,6 +53,9 @@ public final class Rest extends AbstractApi {
     private void addEndpointGroup(EndpointGroup endpointGroup) {
         this.endpointGroups.add(endpointGroup);
         updateControllers(endpointGroup);
+    }
+    private void addEndpoints(List<Endpoint> endpoints) {
+        this.endpoints.addAll(endpoints);
     }
     private void updateControllers(EndpointGroup endpointGroup) {
         if (endpointGroup.getController() != null) {
@@ -75,55 +80,67 @@ public final class Rest extends AbstractApi {
         return "apache spark";
     }
 
-    private static final DataField request = new DataField(REQUEST, "request");
-    private static final DataField response = new DataField(RESPONSE, "response");
+    private static final DataField request = new DataField(REQUEST.type, "request");
+    private static final DataField response = new DataField(RESPONSE.type, "response");
 
     @Override
     public void fillFile(FileWriter fileWriter) throws IOException {
-        ClassGenerator classGenerator = new ClassGenerator(fileWriter, this);
-        classGenerator.generateClass(() -> {
-            for (Controller controller : this.controllers) {
-                classGenerator.generateImport(controller.getImportString());
-            }
-            classGenerator.generateStaticImport("spark.Spark.*");
-        }, () -> {
-            classGenerator.generateMethod("start", VOID, null, () -> {
-                if (this.endpointGroups.isEmpty()) {
-                    writeEndpoints(fileWriter, classGenerator,null,"", this.endpoints);
-                }
-                else {
-                    recursiveEndpointGroups(fileWriter, classGenerator, this.endpointGroups.get(0), "", 0);
-                }
-            });
-        });
+        ClassGenerator.builder()
+                .fileWriter(fileWriter)
+                .generateable(this)
+                .classType(ClassTypes.CLASS())
+                .classImports(classGenerator -> {
+                    for (Controller controller : this.controllers) {
+                        classGenerator.generateImport(controller.getImportString());
+                    }
+                    classGenerator.generateStaticImport("spark.Spark.*");
+                    classGenerator.generateImport(this.context.getImportString());
+                })
+                .classBody(classGenerator -> {
+                    classGenerator.generateAttribute(Access.PRIVATE, "context", "Context", "null");
+                    classGenerator.generateConstructor(new ArrayList<>(){{add(new DataField("Context", "context"));}}, () -> {
+                        classGenerator.write("\t\tthis.context = context;\n");
+                    });
+                    classGenerator.generateMethod("start", VOID.type, null, () -> {
+                        classGenerator.write("\t\tthis.context.getDatabase().connect();\n");
+                        classGenerator.write("\t\tthis.context.init();\n");
+                        if (this.endpointGroups.isEmpty()) {
+                            writeEndpoints(classGenerator,null,"", this.endpoints);
+                        }
+                        else {
+                            recursiveEndpointGroups(classGenerator, this.endpointGroups.get(0), "", 0);
+                        }
+                    });
+                })
+                .build()
+                .make();
     }
 
-    private void recursiveEndpointGroups(FileWriter fileWriter, ClassGenerator classGenerator, EndpointGroup endpointGroup, String groupPath, int index) throws IOException {
+    private void recursiveEndpointGroups(ClassGenerator classGenerator, EndpointGroup endpointGroup, String groupPath, int index) throws IOException {
         if (!endpointGroup.getEndpoints().isEmpty()) {
-            writeEndpoints(fileWriter, classGenerator, endpointGroup.getController(),groupPath + endpointGroup.getGroupName(), endpointGroup.getEndpoints());
+            writeEndpoints(classGenerator, endpointGroup.getController(),groupPath + endpointGroup.getGroupName(), endpointGroup.getEndpoints());
         }
         for (EndpointGroup innerGroup : endpointGroup.getInnerGroups()) {
-            recursiveEndpointGroups(fileWriter, classGenerator, innerGroup, groupPath + endpointGroup.getGroupName(), index);
+            recursiveEndpointGroups(classGenerator, innerGroup, groupPath + endpointGroup.getGroupName(), index);
         }
         ++index;
     }
-    private void writeEndpoints(FileWriter fileWriter, ClassGenerator classGenerator, Controller controller, String groupName, List<Endpoint> endpoints) throws IOException {
+    private void writeEndpoints(ClassGenerator classGenerator, Controller controller, String groupName, List<Endpoint> endpoints) throws IOException {
         if (controller != null) {
-            DataField.Type controllerType = DataField.Type.custom(controller.getName());
-            fileWriter.write("\n");
-            classGenerator.generateMethodVar(controller.getName(), controllerType, "new " + controllerType.type + "()");
+            classGenerator.write("\n");
+            classGenerator.generateMethodVar(controller.getName(), controller.getName(), "new " + controller.getName() + "(this.context)");
             for (Endpoint endpoint : endpoints) {
                 System.out.println(groupName + endpoint.path());
-                String method = controller.addMethod(endpoint.linkedMethodName());
-                fileWriter.write("\t\t" + endpoint.method().method + "(\"" + groupName + endpoint.path() +
+                String method = controller.addMethod(endpoint.linkedMethodName(), endpoint.method().method);
+                classGenerator.write("\t\t" + endpoint.method().method + "(\"" + groupName + endpoint.path() +
                         "\", " + controller.getName() + "::" + method + ");\n");
             }
         }
         else {
-            fileWriter.write("\n");
+            classGenerator.write("\n");
             for (Endpoint endpoint : endpoints) {
                 System.out.println(groupName + endpoint.path());
-                fileWriter.write("\t\t" + endpoint.method().method + "(\"" + groupName + endpoint.path() +
+                classGenerator.write("\t\t" + endpoint.method().method + "(\"" + groupName + endpoint.path() +
                         "\", ((req, res) -> \"" + endpoint.method().method + "\"));\n");
             }
         }
@@ -135,16 +152,37 @@ public final class Rest extends AbstractApi {
             this.rest = new Rest();
         }
 
-        public RestBuilder endpoint(Endpoint.HttpMethod httpMethod, String path, String linkedMethodName) {
+        @Override
+        public IApiBuilder<Rest> port(int port) {
+
+            return this;
+        }
+
+        @Override
+        public IApiBuilder<Rest> endpoint(Endpoint.HttpMethod httpMethod, String path, String linkedMethodName) {
             return this.endpoint(new Endpoint(httpMethod, path, linkedMethodName));
         }
-        public RestBuilder endpoint(Endpoint endpoint) {
+        @Override
+        public IApiBuilder<Rest> endpoint(Endpoint endpoint) {
             this.rest.addEndpoint(endpoint);
             return this;
         }
-        public RestBuilder endpointGroup(EndpointGroup endpointGroup) {
+
+        @Override
+        public IApiBuilder<Rest> endpoints(List<Endpoint> endpoints) {
+            this.rest.addEndpoints(endpoints);
+            return this;
+        }
+
+        @Override
+        public IApiBuilder<Rest> endpointGroup(EndpointGroup endpointGroup) {
             this.rest.addEndpointGroup(endpointGroup);
             return this;
+        }
+
+        @Override
+        public IApiBuilder<Rest> endpointGroup(EndpointGroup.EndpointGroupBuilder endpointGroupBuilder) {
+            return this.endpointGroup(endpointGroupBuilder.build());
         }
 
         @Override

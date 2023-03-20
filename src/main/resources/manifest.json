@@ -1,0 +1,110 @@
+{
+  "sirup_v": 1,
+  "acceptedFormats": ["json"],
+  "templates": [],
+  "languages": [
+    {
+      "language": "java",
+      "description": "Generate a microservice written in Java 17",
+      "options": [
+        {
+          "buildTool": {
+            "selection": ["maven"]
+          }
+        },
+        {
+          "packageName": {
+            "value": "dataTypes.simple.string"
+          }
+        }
+      ]
+    }
+  ],
+  "apiTypes": [
+    {
+      "apiType": "rest",
+      "description": "Generates a microservice with a REST API, using Apache Spark",
+      "options": [
+        {
+          "port": {
+            "value": "dataTypes.simple.int32"
+          }
+        },
+        {
+          "endpoints": {
+            "value": ["dataTypes.complex.endpoint"]
+          }
+        },
+        {
+          "endpointGroups": {
+            "value": ["dataTypes.complex.endpointGroup"]
+          }
+        }
+      ]
+    }
+  ],
+  "databases": [
+    {
+      "database": "postgresql",
+      "options": [
+        {
+          "name": "dataTypes",
+          "values": [
+            "dataTypes.simple.string",
+            "dataTypes.simple.int32",
+            "dataTypes.simple.int64",
+            "dataTypes.simple.float",
+            "dataTypes.simple.boolean"
+          ]
+        }
+      ]
+    }
+  ],
+  "dataTypes": {
+    "simple": {
+      "string": {},
+      "int32": {},
+      "int64": {},
+      "float": {},
+      "boolean": {}
+    },
+    "complex": {
+      "endpoint": {
+        "fields": [
+          {
+            "name": "method",
+            "selection": ["get","post","put","delete"]
+          },
+          {
+            "name": "path",
+            "value": "dataTypes.simple.string"
+          },
+          {
+            "name": "linkedMethod",
+            "value": "dataTypes.simple.string"
+          }
+        ]
+      },
+      "endpointGroup": {
+        "fields": [
+          {
+            "name": "groupName",
+            "type": "dataTypes.simple.string"
+          },
+          {
+            "name": "innerGroups",
+            "type": ["dataTypes.complex.endpointGroup"]
+          },
+          {
+            "name": "endpoints",
+            "type": ["dataTypes.complex.endpoint"]
+          },
+          {
+            "name": "linkedData",
+            "type": "dataTypes.simple.string"
+          }
+        ]
+      }
+    }
+  }
+}

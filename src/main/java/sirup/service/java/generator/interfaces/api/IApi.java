@@ -9,4 +9,6 @@ import java.util.List;
 
 public interface IApi extends Nameable, Dependency, Generateable {
     List<Controller> getControllers();
+    int getPort();
+    void setContext(Generateable context);
 }

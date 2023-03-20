@@ -2,8 +2,15 @@ package sirup.service.java.generator.implmentations;
 
 import sirup.service.java.generator.implmentations.api.Rest;
 import sirup.service.java.generator.implmentations.buildtool.Maven;
-import sirup.service.java.generator.implmentations.common.ClassGenerator;
+import sirup.service.java.generator.implmentations.common.AbstractGenerateable;
+import sirup.service.java.generator.implmentations.common.classgeneration.ClassGenerator;
 import sirup.service.java.generator.implmentations.common.DataField;
+import sirup.service.java.generator.implmentations.common.classgeneration.ClassType;
+import sirup.service.java.generator.implmentations.common.classgeneration.ClassTypes;
+import sirup.service.java.generator.implmentations.context.Context;
+import sirup.service.java.generator.implmentations.interfaces.AbstractInterface;
+import sirup.service.java.generator.implmentations.interfaces.ModelInterface;
+import sirup.service.java.generator.implmentations.interfaces.ServiceInterface;
 import sirup.service.java.generator.implmentations.model.DataModel;
 import sirup.service.java.generator.implmentations.controller.Controller;
 import sirup.service.java.generator.implmentations.database.PostgreSQL;
@@ -23,17 +30,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static sirup.service.java.generator.implmentations.common.DataField.Type.*;
+import static sirup.service.java.generator.implmentations.common.Type.*;
 
-public final class Microservice implements Generateable {
+public final class Microservice extends AbstractGenerateable {
 
     private IApi api;
     private IBuildTool buildTool;
     private IDatabase database;
     private String name;
     private String packageName;
-    @Deprecated
-    private final List<Controller> controllers;
+    private final Context context;
+    private final List<AbstractInterface> interfaces;
 
     private Microservice() {
         //Default configuration
@@ -42,7 +49,15 @@ public final class Microservice implements Generateable {
         this.database = PostgreSQL.DEFAULT;
         this.name = "DEFAULT";
         this.packageName = "org.example";
-        this.controllers = new ArrayList<>();
+
+        ServiceInterface serviceInterface = new ServiceInterface();
+        ModelInterface modelInterface = new ModelInterface();
+
+        this.context = new Context(this);
+        this.interfaces = new ArrayList<>(){{
+            add(serviceInterface);
+            add(modelInterface);
+        }};
     }
 
     public static MicroserviceBuilder builder() {
@@ -73,12 +88,14 @@ public final class Microservice implements Generateable {
     private void setDatabase(IDatabase database) {
         this.database = database;
     }
+    public IDatabase getDatabase() {
+        return this.database;
+    }
     private void setName(String name) {
         this.name = name;
     }
-    @Deprecated
-    private void addController(Controller controller) {
-        this.controllers.add(controller);
+    public List<AbstractInterface> getInterfaces() {
+        return this.interfaces;
     }
 
     public void make() {
@@ -96,21 +113,42 @@ public final class Microservice implements Generateable {
         for (DataModel dataModel : this.database.getDataModels()) {
             fileGenerator.generateClassFile(dataModel);
         }
+        fileGenerator.generateClassFile(this.context);
+        for (Generateable generateable : this.interfaces) {
+            fileGenerator.generateClassFile(generateable);
+        }
         fileGenerator.generate(this.buildTool);
     }
 
     @Override
     public void fillFile(FileWriter fileWriter) throws IOException {
-        ClassGenerator classGenerator = new ClassGenerator(fileWriter, this);
-        classGenerator.generateClass(() -> {
-            classGenerator.generateImport(this.api.getImportString());
-            classGenerator.generateImport(this.database.getImportString());
-        }, () -> {
-            classGenerator.generateStaticMethod("main", VOID, new DataField[]{new DataField(STRING_ARRAY, "args")}, () -> {
-                fileWriter.write("\t\tnew " + this.database.getName() + "().connect();\n");
-                fileWriter.write("\t\tnew " + this.api.getName() + "().start();\n");
-            });
-        });
+        ClassGenerator.builder()
+                .fileWriter(fileWriter)
+                .generateable(this)
+                .classType(ClassTypes.CLASS())
+                .classImports(classGenerator -> {
+                    classGenerator.generateImport(this.api.getImportString());
+                    classGenerator.generateImport(this.database.getImportString());
+                    classGenerator.generateImport(this.context.getImportString());
+                    for (Generateable model: this.database.getDataModels()) {
+                        classGenerator.generateImport(model.getImportString());
+                    }
+                    for (Generateable service : this.database.getServices()) {
+                        classGenerator.generateImport(service.getImportString());
+                    }
+                })
+                .classBody(classGenerator -> {
+                    classGenerator.generateStaticMethod("main", VOID.type, new DataField[]{new DataField(STRING_ARRAY.type, "args")}, () -> {
+                        classGenerator.write("\t\tContext context = new Context();\n");
+                        classGenerator.write("\t\tcontext.addDatabase(new " + this.database.getName() + "());\n");
+                        for (Service service : this.database.getServices()) {
+                            classGenerator.write("\t\tcontext.addService(" + service.getDataModel().getName() + ".class, new " + service.getName() + "());\n");
+                        }
+                        classGenerator.write("\t\tnew " + this.api.getName() + "(context).start();\n");
+                    });
+                })
+                .build()
+                .make();
     }
 
     @Override
@@ -173,24 +211,27 @@ public final class Microservice implements Generateable {
             this.microservice.setDatabase(database);
             return this;
         }
-        @Deprecated
-        public MicroserviceBuilder controller(Controller controller) {
-            this.microservice.addController(controller);
-            return this;
-        }
 
         public Microservice build() {
             this.microservice.buildTool.updateDependencies(this.microservice.api, this.microservice.database);
             this.microservice.api.setPackageName(this.microservice.getPackageName());
+            this.microservice.api.setContext(this.microservice.context);
             this.microservice.database.setPackageName(this.microservice.getPackageName());
             for (Controller controller : this.microservice.api.getControllers()) {
+                controller.setContext(this.microservice.context);
                 controller.setPackageName(this.microservice.getPackageName());
             }
             for (Service service : this.microservice.database.getServices()) {
                 service.setPackageName(this.microservice.getPackageName());
+                service.setContext(this.microservice.context);
             }
             for (DataModel dataModel : this.microservice.database.getDataModels()) {
                 dataModel.setPackageName(this.microservice.getPackageName());
+            }
+            this.microservice.context.setPackageName(this.microservice.getPackageName());
+            for (AbstractInterface generateable : this.microservice.interfaces) {
+                generateable.setPackageName(this.microservice.getPackageName());
+                generateable.setContext(this.microservice.context);
             }
             return this.microservice;
         }

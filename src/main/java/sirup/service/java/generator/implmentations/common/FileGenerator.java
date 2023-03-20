@@ -56,6 +56,8 @@ public class FileGenerator {
         new File(outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/controllers").mkdirs();
         new File(outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/services").mkdirs();
         new File(outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/models").mkdirs();
+        new File(outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/interfaces").mkdirs();
+        new File(outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/context").mkdirs();
         new File(outerName + "/" + RESOURCES_DIR).mkdirs();
         new File(outerName + "/" + TEST_DIR).mkdirs();
     }
