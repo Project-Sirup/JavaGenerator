@@ -78,17 +78,17 @@ public class Service extends AbstractGenerateable implements Contextable {
                                     this.dataModel.getDataFields().stream().map(DataField::name).collect(Collectors.joining(", ")) +
                                     ") VALUES (" + this.dataModel.getDataFields().stream().map(dataField -> "?").collect(Collectors.joining(", ")) + ");\"";
                             System.out.println(insertStatement);
-                            classGenerator.write("\t\t\tPreparedStatement statement = this.connection.prepareStatement(" + insertStatement + ");\n");
+                            classGenerator.write(tab(3) + "PreparedStatement statement = this.connection.prepareStatement(" + insertStatement + ");\n");
                             for (int i = 0; i < this.dataModel.getDataFields().size(); i++) {
                                 DataField dataField = this.dataModel.getDataFields().get(i);
-                                classGenerator.write("\t\t\tstatement.set" +
+                                classGenerator.write(tab(3) + "statement.set" +
                                         convertToInsertType(dataField.type()) + "(" + (i + 1) + ", " + typeName + "." + dataField.name() + "());\n");
                             }
-                            classGenerator.write("\t\tstatement.execute();\n");
-                            classGenerator.write("\t\t\treturn true\n");
+                            classGenerator.write(tab(3) + "statement.execute();\n");
+                            classGenerator.write(tab(3) + "return true;\n");
                         }, "SQLException", () -> {
                             //TODO: add exception handling
-                            classGenerator.write("\t\t\te.printStackTrace();\n");
+                            classGenerator.write(tab(3) + "e.printStackTrace();\n");
                         });
                         classGenerator.write("\t\treturn false;\n");
                     });
@@ -97,24 +97,40 @@ public class Service extends AbstractGenerateable implements Contextable {
                         classGenerator.generateTryCatch(() -> {
                             classGenerator.generateMethodVar("list", "\tList<" + t + ">", "new ArrayList<>()");
                             String getAllStatement = "\"SELECT * FROM " + uncapitalize(this.dataModel.getName()) + "s;\"";
-                            classGenerator.write("\t\t\tPreparedStatement statement = this.connection.prepareStatement(" + getAllStatement + ");\n");
-                            classGenerator.write("\t\t\tResultSet resultSet = statement.executeQuery();\n");
-                            classGenerator.write("\t\t\twhile(resultSet.next()) {\n");
-                            classGenerator.write("\t\t\t\t" + this.dataModel.getName() + " " + uncapitalize(this.dataModel.getName()) +
-                                    " = new " + this.dataModel.getName() + "(\n\t\t\t\t\t" +
+                            classGenerator.write(tab(3) + "PreparedStatement statement = this.connection.prepareStatement(" + getAllStatement + ");\n");
+                            classGenerator.write(tab(3) + "ResultSet resultSet = statement.executeQuery();\n");
+                            classGenerator.write(tab(3) + "while(resultSet.next()) {\n");
+                            classGenerator.write(tab(4) + this.dataModel.getName() + " " + uncapitalize(this.dataModel.getName()) +
+                                    " = new " + this.dataModel.getName() + "(\n" + tab(5) +
                                     this.dataModel.getDataFields().stream().map(dataField ->
-                                            "resultSet.get" + convertToInsertType(dataField.type()) + "(\"" + dataField.name() + "\")").collect(Collectors.joining(",\n\t\t\t\t\t")) +
+                                            "resultSet.get" + convertToInsertType(dataField.type()) + "(\"" + dataField.name() + "\")").collect(Collectors.joining(",\n" + tab(5))) +
                                     ");\n");
-                            classGenerator.write("\t\t\t\tlist.add(" + uncapitalize(this.dataModel.getName()) + ");\n");
-                            classGenerator.write("\t\t\t}\n");
-                            classGenerator.write("\t\t\treturn list;\n");
+                            classGenerator.write(tab(4) + "list.add(" + uncapitalize(this.dataModel.getName()) + ");\n");
+                            classGenerator.write(tab(3) + "}\n");
+                            classGenerator.write(tab(3) + "return list;\n");
                         }, "SQLException", () -> {
-                            classGenerator.write("\t\t\te.printStackTrace();\n");
+                            classGenerator.write(tab(3) + "e.printStackTrace();\n");
                         });
                         classGenerator.write("\t\treturn null;\n");
                     });
                     classGenerator.generateAnnotation(Annotations.OVERRIDE);
                     classGenerator.generateMethod("get", t, idArg, () -> {
+                        classGenerator.generateTryCatch(() -> {
+                            String getStatement = "\"SELECT * FROM " + uncapitalize(this.dataModel.getName()) +
+                                    "s WHERE " + this.dataModel.getDataFields().get(0).name() + " = ?;\"";
+                            classGenerator.write(tab(3) + "PreparedStatement statement = this.connection.prepareStatement(" + getStatement + ");\n");
+                            classGenerator.write(tab(3) + "statement.set" +
+                                    convertToInsertType(this.dataModel.getDataFields().get(0).type()) + "(1, d);\n");
+                            classGenerator.write(tab(3) + "ResultSet resultSet = statement.executeQuery();\n");
+                            classGenerator.write(tab(3) + "resultSet.next();\n");
+                            classGenerator.write(tab(3) + this.dataModel.getName() + " " + uncapitalize(this.dataModel.getName()) + "" +
+                                    " = new " + this.dataModel.getName() + "(\n" + tab(5) + this.dataModel.getDataFields().stream().map(dataField ->
+                                    "resultSet.get" + convertToInsertType(dataField.type()) + "(\"" + dataField.name() + "\")").collect(Collectors.joining(",\n" + tab(5))) +
+                                    ");\n");
+                            classGenerator.write(tab(3) + "return " + uncapitalize(this.dataModel.getName()) + ";\n");
+                        }, "SQLException", () -> {
+                            classGenerator.write(tab(3) + "e.printStackTrace();\n");
+                        });
                         classGenerator.write("\t\treturn null;\n");
                     });
                     classGenerator.generateAnnotation(Annotations.OVERRIDE);

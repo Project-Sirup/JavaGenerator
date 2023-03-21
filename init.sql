@@ -1,0 +1,15 @@
+CREATE TABLE users(
+    userId VARCHAR(255) UNIQUE NOT NULL,
+    userName VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    age INTEGER NOT NULL,
+    verified BOOLEAN NOT NULL,
+    PRIMARY KEY(userId)
+);
+
+CREATE TABLE tasks(
+    taskId VARCHAR(255) UNIQUE NOT NULL,
+    taskName VARCHAR(255) NOT NULL,
+    userId VARCHAR(255) REFERENCES users(userId) NOT NULL,
+    PRIMARY KEY(taskId)
+);
