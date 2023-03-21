@@ -77,7 +77,6 @@ public class Service extends AbstractGenerateable implements Contextable {
                             String insertStatement = "\"INSERT INTO " + uncapitalize(this.dataModel.getName()) + "s (" +
                                     this.dataModel.getDataFields().stream().map(DataField::name).collect(Collectors.joining(", ")) +
                                     ") VALUES (" + this.dataModel.getDataFields().stream().map(dataField -> "?").collect(Collectors.joining(", ")) + ");\"";
-                            System.out.println(insertStatement);
                             classGenerator.write(tab(3) + "PreparedStatement statement = this.connection.prepareStatement(" + insertStatement + ");\n");
                             for (int i = 0; i < this.dataModel.getDataFields().size(); i++) {
                                 DataField dataField = this.dataModel.getDataFields().get(i);
@@ -120,7 +119,7 @@ public class Service extends AbstractGenerateable implements Contextable {
                                     "s WHERE " + this.dataModel.getDataFields().get(0).name() + " = ?;\"";
                             classGenerator.write(tab(3) + "PreparedStatement statement = this.connection.prepareStatement(" + getStatement + ");\n");
                             classGenerator.write(tab(3) + "statement.set" +
-                                    convertToInsertType(this.dataModel.getDataFields().get(0).type()) + "(1, d);\n");
+                                    convertToInsertType(this.dataModel.getDataFields().get(0).type()) + "(1, id);\n");
                             classGenerator.write(tab(3) + "ResultSet resultSet = statement.executeQuery();\n");
                             classGenerator.write(tab(3) + "resultSet.next();\n");
                             classGenerator.write(tab(3) + this.dataModel.getName() + " " + uncapitalize(this.dataModel.getName()) + "" +
@@ -135,10 +134,39 @@ public class Service extends AbstractGenerateable implements Contextable {
                     });
                     classGenerator.generateAnnotation(Annotations.OVERRIDE);
                     classGenerator.generateMethod("update", BOOLEAN.type, typeArg, () -> {
+                        classGenerator.generateTryCatch(() -> {
+                            List<String> setStrings = new ArrayList<>();
+                            for (int i = 1; i < this.dataModel.getDataFields().size(); i++) {
+                                setStrings.add(this.dataModel.getDataFields().get(i).name() + " = ?");
+                            }
+                            String updateStatement = "\"UPDATE " + uncapitalize(this.dataModel.getName()) + "s SET " + String.join(", ", setStrings) + " WHERE " + this.dataModel.getDataFields().get(0).name() + " = ?;\"";
+                            classGenerator.write(tab(3) + "PreparedStatement statement = this.connection.prepareStatement(" + updateStatement + ");\n");
+                            for (int i = 1; i < this.dataModel.getDataFields().size(); i++) {
+                                classGenerator.write(tab(3) + "statement.set" +
+                                        convertToInsertType(this.dataModel.getDataFields().get(i).type()) + "(" + i + ", " +
+                                        uncapitalize(this.dataModel.getName()) + "." + this.dataModel.getDataFields().get(i).name() + "());\n");
+                            }
+                            classGenerator.write(tab(3) + "statement.set" +
+                                    convertToInsertType(this.dataModel.getDataFields().get(0).type()) + "(" + this.dataModel.getDataFields().size() + ", " +
+                                    uncapitalize(this.dataModel.getName()) + "." + this.dataModel.getDataFields().get(0).name() + "());\n");
+                            classGenerator.write(tab(3) + "return statement.executeUpdate() == 1;\n");
+                        }, "SQLException", () -> {
+                            classGenerator.write(tab(3) + "e.printStackTrace();\n");
+                        });
                         classGenerator.write("\t\treturn false;\n");
                     });
                     classGenerator.generateAnnotation(Annotations.OVERRIDE);
                     classGenerator.generateMethod("remove", BOOLEAN.type, idArg, () -> {
+                        classGenerator.generateTryCatch(() -> {
+                            String deleteStatemnet = "\"DELETE FROM " + uncapitalize(this.dataModel.getName()) + "s WHERE " +
+                                    this.dataModel.getDataFields().get(0).name() + " = ?;\"";
+                            classGenerator.write(tab(3) + "PreparedStatement statement = this.connection.prepareStatement(" + deleteStatemnet + ");\n");
+                            classGenerator.write(tab(3) + "statement.set" + convertToInsertType(this.dataModel.getDataFields().get(0).type()) +
+                                    "(1, id);\n");
+                            classGenerator.write(tab(3) + "return statement.executeUpdate() == 1;\n");
+                        }, "SQLException", () -> {
+                            classGenerator.write(tab(3) + "e.printStackTrace();\n");
+                        });
                         classGenerator.write("\t\treturn false;\n");
                     });
                 })
