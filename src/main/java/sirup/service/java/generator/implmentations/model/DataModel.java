@@ -76,8 +76,10 @@ public class DataModel extends AbstractGenerateable {
             return this;
         }
 
+        public DataModelBuilder dataField(String type, String name, String ref) {
+            return this.dataField(new DataField(convertType(type), name, ref));
+        }
         public DataModelBuilder dataField(String type, String name) {
-
             return this.dataField(new DataField(convertType(type), name));
         }
         private String convertType(String inputType) {

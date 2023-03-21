@@ -11,7 +11,7 @@ public record MicroserviceRequest(int sirup_v, boolean docker, Microservice micr
             public record Options() {}
             public record Data(List<Collection> collections) {
                 public record Collection(String name, List<Field> fields) {
-                    public record Field(String name, String type) {}
+                    public record Field(String name, String type, String ref) {}
                 }
             }
         }

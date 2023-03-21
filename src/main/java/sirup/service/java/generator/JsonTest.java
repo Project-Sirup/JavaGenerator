@@ -8,7 +8,7 @@ public class JsonTest {
                                 "sirup_v": 1,
                                 "docker": true,
                                 "microservice": {
-                                    "microserviceId": "<uuid>",
+                                    "microserviceId": "ms01",
                                     "microserviceName": "macro",
                                     "language": {
                                         "name": "java",

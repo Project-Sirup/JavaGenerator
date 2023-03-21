@@ -29,12 +29,13 @@ public class RequestParser {
             DataModel.DataModelBuilder dataModelBuilder = DataModel.builder();
             dataModelBuilder.name(collection.name());
             collection.fields().forEach(field -> {
-                dataModelBuilder.dataField(field.type(), field.name());
+                dataModelBuilder.dataField(field.type(), field.name(), field.ref());
             });
             DATA_MODEL_MAP.put(collection.name(), dataModelBuilder.build());
         });
 
         return Microservice.builder()
+                .id(m.microservice().microserviceId())
                 .name(m.microservice().microserviceName())
                 .packageName(m.microservice().language().options().packageName())
                 .api(APIs.ofType(m.microservice().api().type())

@@ -38,9 +38,11 @@ public final class Microservice extends AbstractGenerateable {
     private IBuildTool buildTool;
     private IDatabase database;
     private String name;
+    private String id;
     private String packageName;
     private final Context context;
     private final List<AbstractInterface> interfaces;
+    private Generateable dbInit;
 
     private Microservice() {
         //Default configuration
@@ -94,12 +96,15 @@ public final class Microservice extends AbstractGenerateable {
     private void setName(String name) {
         this.name = name;
     }
+    private void setId(String id) {
+        this.id = id;
+    }
     public List<AbstractInterface> getInterfaces() {
         return this.interfaces;
     }
 
     public void make() {
-        FileGenerator fileGenerator = new FileGenerator(this.getName(), this.getPackageName());
+        FileGenerator fileGenerator = new FileGenerator(this.id, this.getName(), this.getPackageName());
         fileGenerator.generateFileStructure();
         fileGenerator.generateClassFile(this);
         fileGenerator.generateClassFile(this.api);
@@ -117,6 +122,7 @@ public final class Microservice extends AbstractGenerateable {
         for (Generateable generateable : this.interfaces) {
             fileGenerator.generateClassFile(generateable);
         }
+        fileGenerator.generate(this.dbInit);
         fileGenerator.generate(this.buildTool);
     }
 
@@ -182,6 +188,10 @@ public final class Microservice extends AbstractGenerateable {
             this.microservice = new Microservice();
         }
 
+        public MicroserviceBuilder id(String id) {
+            this.microservice.setId(id);
+            return this;
+        }
         public MicroserviceBuilder name(String name) {
             this.microservice.setName(name);
             return this;
@@ -217,6 +227,7 @@ public final class Microservice extends AbstractGenerateable {
             this.microservice.api.setPackageName(this.microservice.getPackageName());
             this.microservice.api.setContext(this.microservice.context);
             this.microservice.database.setPackageName(this.microservice.getPackageName());
+            this.microservice.dbInit = this.microservice.database.getDbInit();
             for (Controller controller : this.microservice.api.getControllers()) {
                 controller.setContext(this.microservice.context);
                 controller.setPackageName(this.microservice.getPackageName());

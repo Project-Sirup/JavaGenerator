@@ -11,4 +11,5 @@ import java.util.List;
 public interface IDatabase extends Nameable, Dependency, Generateable {
     List<Service> getServices();
     List<DataModel> getDataModels();
+    Generateable getDbInit();
 }

@@ -5,6 +5,7 @@ import sirup.service.java.generator.implmentations.common.classgeneration.ClassT
 import sirup.service.java.generator.implmentations.model.DataModel;
 import sirup.service.java.generator.implmentations.service.Service;
 import sirup.service.java.generator.interfaces.common.Builder;
+import sirup.service.java.generator.interfaces.common.Generateable;
 import sirup.service.java.generator.interfaces.database.IDatabase;
 import sirup.service.java.generator.interfaces.database.IDatabaseBuilder;
 
@@ -43,6 +44,11 @@ public class MongoDB extends AbstractDatabase {
         return "MongoDB";
     }
 
+    @Override
+    public Generateable getDbInit() {
+        return new MongoDB();
+    }
+
     public static class MongoDBBuilder implements IDatabaseBuilder<MongoDB> {
         private final MongoDB mongoDB;
         private MongoDBBuilder() {
@@ -63,5 +69,9 @@ public class MongoDB extends AbstractDatabase {
         public MongoDB build() {
             return this.mongoDB;
         }
+    }
+
+    public static class MongoInit {
+
     }
 }
