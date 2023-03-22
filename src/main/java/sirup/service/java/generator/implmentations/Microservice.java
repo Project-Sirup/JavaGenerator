@@ -1,6 +1,10 @@
 package sirup.service.java.generator.implmentations;
 
+import sirup.service.java.generator.api.MicroserviceRequest;
+import sirup.service.java.generator.api.RequestParser;
+import sirup.service.java.generator.implmentations.api.APIs;
 import sirup.service.java.generator.implmentations.api.Rest;
+import sirup.service.java.generator.implmentations.buildtool.BuildTools;
 import sirup.service.java.generator.implmentations.buildtool.Maven;
 import sirup.service.java.generator.implmentations.common.AbstractGenerateable;
 import sirup.service.java.generator.implmentations.common.classgeneration.ClassGenerator;
@@ -8,6 +12,7 @@ import sirup.service.java.generator.implmentations.common.DataField;
 import sirup.service.java.generator.implmentations.common.classgeneration.ClassType;
 import sirup.service.java.generator.implmentations.common.classgeneration.ClassTypes;
 import sirup.service.java.generator.implmentations.context.Context;
+import sirup.service.java.generator.implmentations.database.Databases;
 import sirup.service.java.generator.implmentations.interfaces.AbstractInterface;
 import sirup.service.java.generator.implmentations.interfaces.ModelInterface;
 import sirup.service.java.generator.implmentations.interfaces.ServiceInterface;
@@ -31,6 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static sirup.service.java.generator.implmentations.common.Type.*;
+import static sirup.service.java.generator.implmentations.common.StringUtil.*;
 
 public final class Microservice extends AbstractGenerateable {
 
@@ -60,6 +66,10 @@ public final class Microservice extends AbstractGenerateable {
             add(serviceInterface);
             add(modelInterface);
         }};
+    }
+
+    public static Microservice fromJsonRequest(String jsonString) {
+        return RequestParser.fromJsonRequest(jsonString);
     }
 
     public static MicroserviceBuilder builder() {
@@ -145,12 +155,12 @@ public final class Microservice extends AbstractGenerateable {
                 })
                 .classBody(classGenerator -> {
                     classGenerator.generateStaticMethod("main", VOID.type, new DataField[]{new DataField(STRING_ARRAY.type, "args")}, () -> {
-                        classGenerator.write("\t\tContext context = new Context();\n");
-                        classGenerator.write("\t\tcontext.addDatabase(new " + this.database.getName() + "());\n");
+                        classGenerator.write(tab(2) + "Context context = new Context();\n");
+                        classGenerator.write(tab(2) + "context.addDatabase(new " + this.database.getName() + "());\n");
                         for (Service service : this.database.getServices()) {
-                            classGenerator.write("\t\tcontext.addService(" + service.getDataModel().getName() + ".class, new " + service.getName() + "());\n");
+                            classGenerator.write(tab(2) + "context.addService(" + service.getDataModel().getName() + ".class, new " + service.getName() + "());\n");
                         }
-                        classGenerator.write("\t\tnew " + this.api.getName() + "(context).start();\n");
+                        classGenerator.write(tab(2) + "new " + this.api.getName() + "(context).start();\n");
                     });
                 })
                 .build()

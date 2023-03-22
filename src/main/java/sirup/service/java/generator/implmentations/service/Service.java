@@ -61,7 +61,7 @@ public class Service extends AbstractGenerateable implements Contextable {
                     classGenerator.generateAttribute(Access.PRIVATE, "connection", "Connection", "null");
                     classGenerator.generateAnnotation(Annotations.OVERRIDE);
                     classGenerator.generateMethod("addDatabase", VOID.type, new ArrayList<>(){{add(new DataField(database.getName(), "database"));}}, () -> {
-                        classGenerator.write("\t\tthis.connection = database.getConnection();\n");
+                        classGenerator.write(tab(2) + "this.connection = database.getConnection();\n");
                     });
                     String t = this.dataModel.getName();
                     String typeName = uncapitalize(this.dataModel.getName());
@@ -89,7 +89,7 @@ public class Service extends AbstractGenerateable implements Contextable {
                             //TODO: add exception handling
                             classGenerator.write(tab(3) + "e.printStackTrace();\n");
                         });
-                        classGenerator.write("\t\treturn false;\n");
+                        classGenerator.write(tab(2) + "return false;\n");
                     });
                     classGenerator.generateAnnotation(Annotations.OVERRIDE);
                     classGenerator.generateMethod("getAll", "List<" + t + ">", null, () -> {
@@ -110,7 +110,7 @@ public class Service extends AbstractGenerateable implements Contextable {
                         }, "SQLException", () -> {
                             classGenerator.write(tab(3) + "e.printStackTrace();\n");
                         });
-                        classGenerator.write("\t\treturn null;\n");
+                        classGenerator.write(tab(2) + "return null;\n");
                     });
                     classGenerator.generateAnnotation(Annotations.OVERRIDE);
                     classGenerator.generateMethod("get", t, idArg, () -> {
@@ -130,7 +130,7 @@ public class Service extends AbstractGenerateable implements Contextable {
                         }, "SQLException", () -> {
                             classGenerator.write(tab(3) + "e.printStackTrace();\n");
                         });
-                        classGenerator.write("\t\treturn null;\n");
+                        classGenerator.write(tab(2) + "return null;\n");
                     });
                     classGenerator.generateAnnotation(Annotations.OVERRIDE);
                     classGenerator.generateMethod("update", BOOLEAN.type, typeArg, () -> {
@@ -167,7 +167,7 @@ public class Service extends AbstractGenerateable implements Contextable {
                         }, "SQLException", () -> {
                             classGenerator.write(tab(3) + "e.printStackTrace();\n");
                         });
-                        classGenerator.write("\t\treturn false;\n");
+                        classGenerator.write(tab(2) + "return false;\n");
                     });
                 })
                 .build()

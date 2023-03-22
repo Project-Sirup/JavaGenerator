@@ -14,6 +14,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import static sirup.service.java.generator.implmentations.common.StringUtil.tab;
 import static sirup.service.java.generator.implmentations.common.classgeneration.ClassGenerator.*;
 
 public class Context extends AbstractGenerateable {
@@ -59,24 +60,24 @@ public class Context extends AbstractGenerateable {
                         add(new DataField("Class<? extends Model>", "modelClass"));
                         add(new DataField("Service<? extends Model>", "service"));
                     }}, () -> {
-                        classGenerator.write("\t\tthis.services.put(modelClass, service);\n");
+                        classGenerator.write(tab(2) + "this.services.put(modelClass, service);\n");
                     });
                     classGenerator.generateMethod("getService", "Service<? extends Model>", new ArrayList<>(){{
                         add(new DataField("Class<? extends Model>", "modelClass"));
                     }}, () -> {
-                        classGenerator.write("\t\treturn this.services.get(modelClass);\n");
+                        classGenerator.write(tab(2) + "return this.services.get(modelClass);\n");
                     });
                     classGenerator.generateMethod("addDatabase", Type.VOID.type, new ArrayList<>(){{
                         add(new DataField(microservice.getDatabase().getName(), "database"));}}, () -> {
-                        classGenerator.write("\t\tthis.database = database;\n");
+                        classGenerator.write(tab(2) + "this.database = database;\n");
                     });
                     classGenerator.generateMethod("getDatabase", this.microservice.getDatabase().getName(), null, () -> {
-                        classGenerator.write("\t\treturn this.database;\n");
+                        classGenerator.write(tab(2) + "return this.database;\n");
                     });
                     classGenerator.generateMethod("init", Type.VOID.type, null, () -> {
-                        classGenerator.write("\t\tfor (Service<?> service : this.services.values()) {\n");
-                        classGenerator.write("\t\t\tservice.addDatabase(this.database);\n");
-                        classGenerator.write("\t\t};\n");
+                        classGenerator.write(tab(2) + "for (Service<?> service : this.services.values()) {\n");
+                        classGenerator.write(tab(3) + "service.addDatabase(this.database);\n");
+                        classGenerator.write(tab(2) + "};\n");
                     });
                 })
                 .build()

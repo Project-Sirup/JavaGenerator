@@ -83,8 +83,8 @@ public class Controller extends AbstractGenerateable implements Contextable {
                     classGenerator.generateConstructor(new ArrayList<>(){{
                         add(new DataField("Context", "context"));
                     }}, () -> {
-                        classGenerator.write("\t\tthis.context = context;\n");
-                        classGenerator.write("\t\tthis.service = (" + this.dataModel.getName() +
+                        classGenerator.write(tab(2) + "this.context = context;\n");
+                        classGenerator.write(tab(2) + "this.service = (" + this.dataModel.getName() +
                                 "Service) context.getService(" + this.dataModel.getName() + ".class);\n");
                     });
                     List<DataField> args = new ArrayList<>(){{
@@ -97,7 +97,7 @@ public class Controller extends AbstractGenerateable implements Contextable {
                             classGenerator.write(translateMethod(method) + ";\n");
                         });
                     }
-                    classGenerator.write("\tprivate record " + this.dataModel.getName() + "Request(" +
+                    classGenerator.write(tab(1) + "private record " + this.dataModel.getName() + "Request(" +
                             this.dataModel.getName() + " " + uncapitalize(this.dataModel.getName()) + ") {}\n");
                 })
                 .build()
@@ -107,23 +107,23 @@ public class Controller extends AbstractGenerateable implements Contextable {
     private String translateMethod(String inputMethod) {
         inputMethod = inputMethod.toLowerCase();
         if (inputMethod.contains("store") || inputMethod.contains("create") || inputMethod.contains("add") || inputMethod.contains("new")) {
-            return "\t\t" + this.dataModel.getName() + "Request "
+            return tab(2) + this.dataModel.getName() + "Request "
                     + uncapitalize(this.dataModel.getName()) + "Request = this.gson.fromJson(request.body(), " + this.dataModel.getName() + "Request.class);\n" +
-                    "\t\treturn this.service.add(" + uncapitalize(this.dataModel.getName()) + "Request." + uncapitalize(this.dataModel.getName()) + "())";
+                    tab(2) + "return this.service.add(" + uncapitalize(this.dataModel.getName()) + "Request." + uncapitalize(this.dataModel.getName()) + "())";
         }
         if (inputMethod.contains("findall") || inputMethod.contains("getall")) {
-            return "\t\treturn this.service.getAll()";
+            return tab(2) + "return this.service.getAll()";
         }
         if (inputMethod.contains("find") || inputMethod.contains("get")) {
-            return "\t\treturn this.service.get(request.params(\"" + this.dataModel.getDataFields().get(0).name() + "\"))";
+            return tab(2) + "return this.service.get(request.params(\"" + this.dataModel.getDataFields().get(0).name() + "\"))";
         }
         if (inputMethod.contains("change") || inputMethod.contains("update") || inputMethod.contains("put") || inputMethod.contains("patch")) {
-            return "\t\t" + this.dataModel.getName() + "Request "
+            return tab(2) + this.dataModel.getName() + "Request "
                     + uncapitalize(this.dataModel.getName()) + "Request = this.gson.fromJson(request.body(), " + this.dataModel.getName() + "Request.class);\n" +
-                    "\t\treturn this.service.update(" + uncapitalize(this.dataModel.getName()) + "Request." + uncapitalize(this.dataModel.getName()) + "())";
+                    tab(2) + "return this.service.update(" + uncapitalize(this.dataModel.getName()) + "Request." + uncapitalize(this.dataModel.getName()) + "())";
         }
         if (inputMethod.contains("delete") || inputMethod.contains("remove") || inputMethod.contains("destroy")) {
-            return "\t\treturn this.service.remove(request.params(\"" + this.dataModel.getDataFields().get(0).name() + "\"))";
+            return tab(2) + "return this.service.remove(request.params(\"" + this.dataModel.getDataFields().get(0).name() + "\"))";
         }
         throw new IllegalArgumentException("cannot translate " + inputMethod);
     }

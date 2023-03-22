@@ -75,24 +75,24 @@ public final class PostgreSQL extends AbstractDatabase {
                     classGenerator.generateAttribute(Access.PRIVATE,"connection", CONNECTION.type, "null");
                     classGenerator.generateMethod("connect", BOOLEAN.type, null, () -> {
                         classGenerator.generateTryCatch(() -> {
-                            classGenerator.write("\t\t\tthis.connection = DriverManager.getConnection(connectionString, user, password);\n");
+                            classGenerator.write(tab(3) + "this.connection = DriverManager.getConnection(connectionString, user, password);\n");
                         }, "SQLException", () -> {
-                            classGenerator.write("\t\t\te.printStackTrace();\n");
-                            classGenerator.write("\t\t\treturn false;\n");
+                            classGenerator.write(tab(3) + "e.printStackTrace();\n");
+                            classGenerator.write(tab(3) + "return false;\n");
                         });
-                        classGenerator.write("\t\treturn true;\n");
+                        classGenerator.write(tab(2) + "return true;\n");
                     });
                     classGenerator.generateMethod("disconnect", BOOLEAN.type, null, () -> {
                         classGenerator.generateTryCatch(() -> {
-                            classGenerator.write("\t\t\tthis.connection.close();\n");
+                            classGenerator.write(tab(3) + "this.connection.close();\n");
                         }, "SQLException", () -> {
-                            classGenerator.write("\t\t\te.printStackTrace();\n");
-                            classGenerator.write("\t\t\treturn false;\n");
+                            classGenerator.write(tab(3) + "e.printStackTrace();\n");
+                            classGenerator.write(tab(3) + "return false;\n");
                         });
-                        classGenerator.write("\t\treturn true;\n");
+                        classGenerator.write(tab(2) + "return true;\n");
                     });
                     classGenerator.generateMethod("getConnection", "Connection", null, () -> {
-                        classGenerator.write("\t\treturn this.connection;\n");
+                        classGenerator.write(tab(2) + "return this.connection;\n");
                     });
                 })
                 .build()

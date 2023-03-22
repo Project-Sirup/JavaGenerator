@@ -1,5 +1,7 @@
 package sirup.service.java.generator.implmentations.api;
 
+import sirup.service.java.generator.api.MicroserviceRequest;
+import sirup.service.java.generator.api.RequestParser;
 import sirup.service.java.generator.implmentations.common.*;
 import sirup.service.java.generator.implmentations.common.classgeneration.Access;
 import sirup.service.java.generator.implmentations.common.classgeneration.ClassGenerator;
@@ -15,6 +17,7 @@ import java.util.stream.Collectors;
 
 import static sirup.service.java.generator.implmentations.common.Endpoint.HttpMethod.*;
 import static sirup.service.java.generator.implmentations.common.Type.*;
+import static sirup.service.java.generator.implmentations.common.StringUtil.*;
 
 public final class Rest extends AbstractApi {
 
@@ -44,6 +47,10 @@ public final class Rest extends AbstractApi {
         return "REST: {\n" +
                 endpoints.stream().map(Endpoint::toString).collect(Collectors.joining("\n")) +
                 "\n}";
+    }
+
+    private void setPort(int port) {
+        this.port = port;
     }
 
     private void addEndpoint(Endpoint endpoint) {
@@ -99,11 +106,11 @@ public final class Rest extends AbstractApi {
                 .classBody(classGenerator -> {
                     classGenerator.generateAttribute(Access.PRIVATE, "context", "Context", "null");
                     classGenerator.generateConstructor(new ArrayList<>(){{add(new DataField("Context", "context"));}}, () -> {
-                        classGenerator.write("\t\tthis.context = context;\n");
+                        classGenerator.write(tab(2) + "this.context = context;\n");
                     });
                     classGenerator.generateMethod("start", VOID.type, null, () -> {
-                        classGenerator.write("\t\tthis.context.getDatabase().connect();\n");
-                        classGenerator.write("\t\tthis.context.init();\n");
+                        classGenerator.write(tab(2) + "this.context.getDatabase().connect();\n");
+                        classGenerator.write(tab(2) + "this.context.init();\n");
                         if (this.endpointGroups.isEmpty()) {
                             writeEndpoints(classGenerator,null,"", this.endpoints);
                         }
@@ -153,36 +160,11 @@ public final class Rest extends AbstractApi {
         }
 
         @Override
-        public IApiBuilder<Rest> port(int port) {
-
+        public IApiBuilder<Rest> options(MicroserviceRequest.Microservice.Api.Options options) {
+            this.rest.setPort(options.port());
+            this.rest.addEndpoints(RequestParser.iterateEndpoints(options.endpoints()));
+            this.rest.addEndpointGroup(RequestParser.iterateEndpointGroups(options.endpointGroups().get(0),0).build());
             return this;
-        }
-
-        @Override
-        public IApiBuilder<Rest> endpoint(Endpoint.HttpMethod httpMethod, String path, String linkedMethodName) {
-            return this.endpoint(new Endpoint(httpMethod, path, linkedMethodName));
-        }
-        @Override
-        public IApiBuilder<Rest> endpoint(Endpoint endpoint) {
-            this.rest.addEndpoint(endpoint);
-            return this;
-        }
-
-        @Override
-        public IApiBuilder<Rest> endpoints(List<Endpoint> endpoints) {
-            this.rest.addEndpoints(endpoints);
-            return this;
-        }
-
-        @Override
-        public IApiBuilder<Rest> endpointGroup(EndpointGroup endpointGroup) {
-            this.rest.addEndpointGroup(endpointGroup);
-            return this;
-        }
-
-        @Override
-        public IApiBuilder<Rest> endpointGroup(EndpointGroup.EndpointGroupBuilder endpointGroupBuilder) {
-            return this.endpointGroup(endpointGroupBuilder.build());
         }
 
         @Override

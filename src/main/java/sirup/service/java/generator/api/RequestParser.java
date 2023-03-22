@@ -39,9 +39,7 @@ public class RequestParser {
                 .name(m.microservice().microserviceName())
                 .packageName(m.microservice().language().options().packageName())
                 .api(APIs.ofType(m.microservice().api().type())
-                        .port(m.microservice().api().options().port())
-                        .endpoints(iterateEndpoints(m.microservice().api().options().endpoints()))
-                        .endpointGroup(iterateEndpointGroups(m.microservice().api().options().endpointGroups().get(0),0).build())
+                        .options(m.microservice().api().options())
                 )
                 .database(Databases.ofType(m.microservice().database().name())
                         .dataModels(DATA_MODEL_MAP.values().stream().toList())
@@ -50,7 +48,7 @@ public class RequestParser {
                 .build();
     }
 
-    private static List<Endpoint> iterateEndpoints(List<MicroserviceRequest.Microservice.Api.Options.Endpoint> inputEndpoints) {
+    public static List<Endpoint> iterateEndpoints(List<MicroserviceRequest.Microservice.Api.Options.Endpoint> inputEndpoints) {
         List<Endpoint> endpoints = new ArrayList<>();
         inputEndpoints.forEach(inputEndpoint -> {
             endpoints.add(new Endpoint(Endpoint.HttpMethod.from(inputEndpoint.method()), inputEndpoint.path(), inputEndpoint.linkedMethod()));
@@ -58,7 +56,7 @@ public class RequestParser {
         return endpoints;
     }
 
-    private static EndpointGroup.EndpointGroupBuilder iterateEndpointGroups(MicroserviceRequest.Microservice.Api.Options.EndpointGroup endpointGroup, int index) {
+    public static EndpointGroup.EndpointGroupBuilder iterateEndpointGroups(MicroserviceRequest.Microservice.Api.Options.EndpointGroup endpointGroup, int index) {
         EndpointGroup.EndpointGroupBuilder endpointGroupBuilder = EndpointGroup.builder();
         endpointGroupBuilder.groupName(endpointGroup.groupName());
         if (!endpointGroup.endpoints().isEmpty()) {
@@ -75,7 +73,7 @@ public class RequestParser {
         return endpointGroupBuilder;
     }
 
-    private static void addEndpoints(EndpointGroup.EndpointGroupBuilder endpointGroupBuilder, List<MicroserviceRequest.Microservice.Api.Options.Endpoint> endpoints) {
+    public static void addEndpoints(EndpointGroup.EndpointGroupBuilder endpointGroupBuilder, List<MicroserviceRequest.Microservice.Api.Options.Endpoint> endpoints) {
         for (MicroserviceRequest.Microservice.Api.Options.Endpoint endpoint : endpoints) {
             System.out.println(endpoint.method() + endpoint.path());
             endpointGroupBuilder.endpoint(Endpoint.HttpMethod.from(endpoint.method()), endpoint.path(), endpoint.linkedMethod());

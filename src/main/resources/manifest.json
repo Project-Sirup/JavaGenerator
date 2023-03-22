@@ -41,6 +41,22 @@
           }
         }
       ]
+    },
+    {
+      "apiType": "grpc",
+      "description": "Generates a microservice with a gRPC API",
+      "options": [
+        {
+          "port": {
+            "value": "dataTypes.simple.int32"
+          }
+        },
+        {
+          "procedures": {
+            "value": ["dataTypes.complex.procedure"]
+          }
+        }
+      ]
     }
   ],
   "databases": [
@@ -102,6 +118,46 @@
           {
             "name": "linkedData",
             "type": "dataTypes.simple.string"
+          }
+        ]
+      },
+      "procedure": {
+        "fields": [
+          {
+            "name": "procedureName",
+            "value": "dataTypes.simple.string"
+          },
+          {
+            "name": "requestMessage",
+            "value": "dataTypes.complex.message"
+          },
+          {
+            "name": "responseMessage",
+            "value": "dataTypes.complex.message"
+          }
+        ]
+      },
+      "message": {
+        "fields": [
+          {
+            "name": "messageName",
+            "value": "dataTypes.simple.string"
+          },
+          {
+            "name": "messageBody",
+            "value": ["dataTypes.complex.messageField"]
+          }
+        ]
+      },
+      "messageField": {
+        "fields": [
+          {
+            "name": "fieldName",
+            "value": "dataTypes.simple.string"
+          },
+          {
+            "name": "fieldValue",
+            "value": "dataTypes.simple.string"
           }
         ]
       }

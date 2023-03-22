@@ -1,5 +1,6 @@
 package sirup.service.java.generator.implmentations.api;
 
+import sirup.service.java.generator.api.MicroserviceRequest;
 import sirup.service.java.generator.implmentations.common.Endpoint;
 import sirup.service.java.generator.implmentations.common.EndpointGroup;
 import sirup.service.java.generator.implmentations.common.classgeneration.ClassGenerator;
@@ -10,6 +11,8 @@ import sirup.service.java.generator.interfaces.api.IApiBuilder;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
+
+import static sirup.service.java.generator.implmentations.common.StringUtil.tab;
 
 public final class Grpc extends AbstractApi {
 
@@ -32,7 +35,7 @@ public final class Grpc extends AbstractApi {
                 .generateable(this)
                 .classType(ClassTypes.CLASS())
                 .classBody(classGenerator -> {
-                    classGenerator.write("\t\t//TODO: implement gRPC\n");
+                    classGenerator.write(tab(2) + "//TODO: implement gRPC\n");
                 })
                 .build()
                 .make();
@@ -49,32 +52,7 @@ public final class Grpc extends AbstractApi {
         }
 
         @Override
-        public IApiBuilder<Grpc> port(int port) {
-            return this;
-        }
-
-        @Override
-        public IApiBuilder<Grpc> endpoint(Endpoint.HttpMethod httpMethod, String path, String linkedMethodName) {
-            return this;
-        }
-
-        @Override
-        public IApiBuilder<Grpc> endpoints(List<Endpoint> endpoints) {
-            return this;
-        }
-
-        @Override
-        public IApiBuilder<Grpc> endpoint(Endpoint endpoint) {
-            return this;
-        }
-
-        @Override
-        public IApiBuilder<Grpc> endpointGroup(EndpointGroup endpointGroup) {
-            return this;
-        }
-
-        @Override
-        public IApiBuilder<Grpc> endpointGroup(EndpointGroup.EndpointGroupBuilder endpointGroupBuilder) {
+        public IApiBuilder<Grpc> options(MicroserviceRequest.Microservice.Api.Options options) {
             return this;
         }
 
