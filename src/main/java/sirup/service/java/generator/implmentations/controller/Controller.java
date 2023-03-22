@@ -40,7 +40,6 @@ public class Controller extends AbstractGenerateable implements Contextable {
         String originalName = method + this.dataModel.getName();
         String updatedName = originalName;
         while (this.methods.contains(updatedName)) {
-            System.out.println(updatedName);
             updatedName = originalName + i++;
         }
         this.methods.add(updatedName);

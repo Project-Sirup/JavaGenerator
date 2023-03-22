@@ -1,6 +1,6 @@
 package sirup.service.java.generator.implmentations.context;
 
-import sirup.service.java.generator.implmentations.Microservice;
+import sirup.service.java.generator.implmentations.microservice.Microservice;
 import sirup.service.java.generator.implmentations.common.AbstractGenerateable;
 import sirup.service.java.generator.implmentations.common.classgeneration.Access;
 import sirup.service.java.generator.implmentations.common.classgeneration.ClassGenerator;
@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import static sirup.service.java.generator.implmentations.common.StringUtil.tab;
-import static sirup.service.java.generator.implmentations.common.classgeneration.ClassGenerator.*;
 
 public class Context extends AbstractGenerateable {
 

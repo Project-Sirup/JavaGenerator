@@ -1,9 +1,9 @@
 package sirup.service.java.generator.api;
 
 import com.google.gson.Gson;
-import sirup.service.java.generator.implmentations.Microservice;
+import sirup.service.java.generator.implmentations.microservice.LanguageNotSupportedException;
+import sirup.service.java.generator.implmentations.microservice.Microservice;
 import sirup.service.java.generator.implmentations.api.APIs;
-import sirup.service.java.generator.implmentations.api.Rest;
 import sirup.service.java.generator.implmentations.buildtool.BuildTools;
 import sirup.service.java.generator.implmentations.common.Endpoint;
 import sirup.service.java.generator.implmentations.common.EndpointGroup;
@@ -18,12 +18,15 @@ import java.util.Map;
 
 public class RequestParser {
 
+
+    public RequestParser() {
+
+    }
+
     private static final Gson GSON = new Gson();
     private static final Map<String, DataModel> DATA_MODEL_MAP = new HashMap<>();
 
-    public static Microservice fromJsonRequest(String json) {
-        MicroserviceRequest m = GSON.fromJson(json, MicroserviceRequest.class);
-
+    public static Microservice fromJsonRequest(MicroserviceRequest m) {
         DATA_MODEL_MAP.clear();
         m.microservice().database().data().collections().forEach(collection -> {
             DataModel.DataModelBuilder dataModelBuilder = DataModel.builder();
@@ -33,6 +36,10 @@ public class RequestParser {
             });
             DATA_MODEL_MAP.put(collection.name(), dataModelBuilder.build());
         });
+        String lang = m.microservice().language().name().toLowerCase();
+        if (!lang.equals("java")) {
+            throw new LanguageNotSupportedException("Language [" + lang + "] is not supported");
+        }
 
         return Microservice.builder()
                 .id(m.microservice().microserviceId())
@@ -46,6 +53,9 @@ public class RequestParser {
                 )
                 .buildTool(BuildTools.ofType(m.microservice().language().options().buildTool()))
                 .build();
+    }
+    public static Microservice fromJsonRequest(String json) {
+        return RequestParser.fromJsonRequest(GSON.fromJson(json, MicroserviceRequest.class));
     }
 
     public static List<Endpoint> iterateEndpoints(List<MicroserviceRequest.Microservice.Api.Options.Endpoint> inputEndpoints) {
@@ -75,7 +85,6 @@ public class RequestParser {
 
     public static void addEndpoints(EndpointGroup.EndpointGroupBuilder endpointGroupBuilder, List<MicroserviceRequest.Microservice.Api.Options.Endpoint> endpoints) {
         for (MicroserviceRequest.Microservice.Api.Options.Endpoint endpoint : endpoints) {
-            System.out.println(endpoint.method() + endpoint.path());
             endpointGroupBuilder.endpoint(Endpoint.HttpMethod.from(endpoint.method()), endpoint.path(), endpoint.linkedMethod());
         }
     }

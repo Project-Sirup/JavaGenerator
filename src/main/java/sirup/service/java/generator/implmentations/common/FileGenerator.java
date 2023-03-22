@@ -25,7 +25,7 @@ public class FileGenerator {
     public void generateClassFile(Generateable generateable) {
         try {
             String filePath =
-                    microserviceId + "/" + outerName + "/" +
+                    BASE_DIR + "/" + microserviceId + "/" + outerName + "/" +
                     generateable.getDir() + "/" +
                     capitalize(generateable.getName()) + ".java";
             File file = new File(filePath);
@@ -40,7 +40,7 @@ public class FileGenerator {
     public void generate(Generateable generateable) {
         try {
             File file = new File(
-                    microserviceId + "/" + outerName + "/" +
+                    BASE_DIR + "/" + microserviceId + "/" + outerName + "/" +
                             generateable.getDir() + "/" +
                             generateable.getName());
             file.createNewFile();
@@ -52,15 +52,15 @@ public class FileGenerator {
         }
     }
     public void generateFileStructure() {
-        new File(microserviceId + "/" + outerName + "/" + SOURCE_DIR + "/" + basePackageDir).mkdirs();
-        new File(microserviceId + "/" + outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/api").mkdirs();
-        new File(microserviceId + "/" + outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/database").mkdirs();
-        new File(microserviceId + "/" + outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/controllers").mkdirs();
-        new File(microserviceId + "/" + outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/services").mkdirs();
-        new File(microserviceId + "/" + outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/models").mkdirs();
-        new File(microserviceId + "/" + outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/interfaces").mkdirs();
-        new File(microserviceId + "/" + outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/context").mkdirs();
-        new File(microserviceId + "/" + outerName + "/" + RESOURCES_DIR).mkdirs();
-        new File(microserviceId + "/" + outerName + "/" + TEST_DIR).mkdirs();
+        new File(BASE_DIR + "/" + microserviceId + "/" + outerName + "/" + SOURCE_DIR + "/" + basePackageDir).mkdirs();
+        new File(BASE_DIR + "/" + microserviceId + "/" + outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/api").mkdirs();
+        new File(BASE_DIR + "/" + microserviceId + "/" + outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/database").mkdirs();
+        new File(BASE_DIR + "/" + microserviceId + "/" + outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/controllers").mkdirs();
+        new File(BASE_DIR + "/" + microserviceId + "/" + outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/services").mkdirs();
+        new File(BASE_DIR + "/" + microserviceId + "/" + outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/models").mkdirs();
+        new File(BASE_DIR + "/" + microserviceId + "/" + outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/interfaces").mkdirs();
+        new File(BASE_DIR + "/" + microserviceId + "/" + outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/context").mkdirs();
+        new File(BASE_DIR + "/" + microserviceId + "/" + outerName + "/" + RESOURCES_DIR).mkdirs();
+        new File(BASE_DIR + "/" + microserviceId + "/" + outerName + "/" + TEST_DIR).mkdirs();
     }
 }

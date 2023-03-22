@@ -1,18 +1,14 @@
-package sirup.service.java.generator.implmentations;
+package sirup.service.java.generator.implmentations.microservice;
 
 import sirup.service.java.generator.api.MicroserviceRequest;
 import sirup.service.java.generator.api.RequestParser;
-import sirup.service.java.generator.implmentations.api.APIs;
 import sirup.service.java.generator.implmentations.api.Rest;
-import sirup.service.java.generator.implmentations.buildtool.BuildTools;
 import sirup.service.java.generator.implmentations.buildtool.Maven;
 import sirup.service.java.generator.implmentations.common.AbstractGenerateable;
 import sirup.service.java.generator.implmentations.common.classgeneration.ClassGenerator;
 import sirup.service.java.generator.implmentations.common.DataField;
-import sirup.service.java.generator.implmentations.common.classgeneration.ClassType;
 import sirup.service.java.generator.implmentations.common.classgeneration.ClassTypes;
 import sirup.service.java.generator.implmentations.context.Context;
-import sirup.service.java.generator.implmentations.database.Databases;
 import sirup.service.java.generator.implmentations.interfaces.AbstractInterface;
 import sirup.service.java.generator.implmentations.interfaces.ModelInterface;
 import sirup.service.java.generator.implmentations.interfaces.ServiceInterface;
@@ -69,7 +65,18 @@ public final class Microservice extends AbstractGenerateable {
     }
 
     public static Microservice fromJsonRequest(String jsonString) {
-        return RequestParser.fromJsonRequest(jsonString);
+        System.out.println("Creating microservice... ");
+        long start = System.currentTimeMillis();
+        Microservice m = RequestParser.fromJsonRequest(jsonString);
+        System.out.println("Microservice created in: " + (System.currentTimeMillis() - start) + "ms" );
+        return m;
+    }
+    public static Microservice fromJsonRequest(MicroserviceRequest microserviceRequest) {
+        System.out.println("Creating microservice... ");
+        long start = System.currentTimeMillis();
+        Microservice m = RequestParser.fromJsonRequest(microserviceRequest);
+        System.out.println("Microservice created in: " + (System.currentTimeMillis() - start) + "ms" );
+        return m;
     }
 
     public static MicroserviceBuilder builder() {

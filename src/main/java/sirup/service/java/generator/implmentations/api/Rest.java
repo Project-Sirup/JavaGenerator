@@ -137,7 +137,6 @@ public final class Rest extends AbstractApi {
             classGenerator.write("\n");
             classGenerator.generateMethodVar(controller.getName(), controller.getName(), "new " + controller.getName() + "(this.context)");
             for (Endpoint endpoint : endpoints) {
-                System.out.println(groupName + endpoint.path());
                 String method = controller.addMethod(endpoint.linkedMethodName(), endpoint.method().method);
                 classGenerator.write("\t\t" + endpoint.method().method + "(\"" + groupName + endpoint.path() +
                         "\", " + controller.getName() + "::" + method + ");\n");
@@ -146,7 +145,6 @@ public final class Rest extends AbstractApi {
         else {
             classGenerator.write("\n");
             for (Endpoint endpoint : endpoints) {
-                System.out.println(groupName + endpoint.path());
                 classGenerator.write("\t\t" + endpoint.method().method + "(\"" + groupName + endpoint.path() +
                         "\", ((req, res) -> \"" + endpoint.method().method + "\"));\n");
             }

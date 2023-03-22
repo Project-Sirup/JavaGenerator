@@ -55,6 +55,11 @@
           "procedures": {
             "value": ["dataTypes.complex.procedure"]
           }
+        },
+        {
+          "messages": {
+            "value": ["dataTypes.complex.message"]
+          }
         }
       ]
     }
@@ -129,11 +134,11 @@
           },
           {
             "name": "requestMessage",
-            "value": "dataTypes.complex.message"
+            "value": "dataTypes.complex.string"
           },
           {
             "name": "responseMessage",
-            "value": "dataTypes.complex.message"
+            "value": "dataTypes.complex.string"
           }
         ]
       },
@@ -156,7 +161,7 @@
             "value": "dataTypes.simple.string"
           },
           {
-            "name": "fieldValue",
+            "name": "fieldType",
             "value": "dataTypes.simple.string"
           }
         ]

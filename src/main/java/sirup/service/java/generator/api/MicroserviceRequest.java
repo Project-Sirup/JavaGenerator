@@ -16,9 +16,13 @@ public record MicroserviceRequest(int sirup_v, boolean docker, Microservice micr
             }
         }
         public record Api(String type, Options options) {
-            public record Options(int port, List<EndpointGroup> endpointGroups, List<Endpoint> endpoints) {
+            public record Options(int port, List<EndpointGroup> endpointGroups, List<Endpoint> endpoints, List<Procedure> procedures, List<Message> messages) {
                 public record Endpoint(String method, String path, String linkedMethod) {}
                 public record EndpointGroup(String groupName, List<EndpointGroup> innerGroups, List<Endpoint> endpoints, String linkedData) {}
+                public record Procedure(String procedureName, String requestMessage, String responseMessage) {}
+                public record Message(String messageName, List<Field> fields) {
+                    public record Field(String fieldName, String fieldType) {}
+                }
             }
         }
         public record External(String name) {}

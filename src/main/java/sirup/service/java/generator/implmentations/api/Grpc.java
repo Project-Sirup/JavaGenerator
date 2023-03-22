@@ -35,7 +35,7 @@ public final class Grpc extends AbstractApi {
                 .generateable(this)
                 .classType(ClassTypes.CLASS())
                 .classBody(classGenerator -> {
-                    classGenerator.write(tab(2) + "//TODO: implement gRPC\n");
+                    classGenerator.write(tab(1) + "//TODO: implement gRPC\n");
                 })
                 .build()
                 .make();
@@ -53,6 +53,7 @@ public final class Grpc extends AbstractApi {
 
         @Override
         public IApiBuilder<Grpc> options(MicroserviceRequest.Microservice.Api.Options options) {
+
             return this;
         }
 
