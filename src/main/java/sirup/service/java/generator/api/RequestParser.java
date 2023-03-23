@@ -18,11 +18,6 @@ import java.util.Map;
 
 public class RequestParser {
 
-
-    public RequestParser() {
-
-    }
-
     private static final Gson GSON = new Gson();
     private static final Map<String, DataModel> DATA_MODEL_MAP = new HashMap<>();
 
