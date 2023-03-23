@@ -149,15 +149,15 @@ public final class Microservice extends AbstractGenerateable {
                 .fileWriter(fileWriter)
                 .generateable(this)
                 .classType(ClassTypes.CLASS())
-                .classImports(classGenerator -> {
-                    classGenerator.generateImport(this.api.getImportString());
-                    classGenerator.generateImport(this.database.getImportString());
-                    classGenerator.generateImport(this.context.getImportString());
+                .classImports(importGenerator -> {
+                    importGenerator.generateImport(this.api.getImportString());
+                    importGenerator.generateImport(this.database.getImportString());
+                    importGenerator.generateImport(this.context.getImportString());
                     for (Generateable model: this.database.getDataModels()) {
-                        classGenerator.generateImport(model.getImportString());
+                        importGenerator.generateImport(model.getImportString());
                     }
                     for (Generateable service : this.database.getServices()) {
-                        classGenerator.generateImport(service.getImportString());
+                        importGenerator.generateImport(service.getImportString());
                     }
                 })
                 .classBody(classGenerator -> {

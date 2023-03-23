@@ -39,12 +39,12 @@ public class Context extends AbstractGenerateable {
                 .fileWriter(fileWriter)
                 .generateable(this)
                 .classType(ClassTypes.CLASS())
-                .classImports(classGenerator -> {
-                    classGenerator.generateImport(Imports.MAP);
-                    classGenerator.generateImport(Imports.HASH_MAP);
-                    classGenerator.generateImport(this.microservice.getDatabase().getImportString());
+                .classImports(importGenerator -> {
+                    importGenerator.generateImport(Imports.MAP);
+                    importGenerator.generateImport(Imports.HASH_MAP);
+                    importGenerator.generateImport(this.microservice.getDatabase().getImportString());
                     for (Generateable generateable : this.microservice.getInterfaces()) {
-                        classGenerator.generateImport(generateable.getImportString());
+                        importGenerator.generateImport(generateable.getImportString());
                     }
                 })
                 .classBody(classGenerator -> {

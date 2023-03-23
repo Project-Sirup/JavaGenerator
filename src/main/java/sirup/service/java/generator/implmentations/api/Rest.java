@@ -84,7 +84,7 @@ public final class Rest extends AbstractApi {
 
     @Override
     public String getDependencyName() {
-        return "apache spark";
+        return "rest";
     }
 
     private static final DataField request = new DataField(REQUEST.type, "request");
@@ -96,12 +96,12 @@ public final class Rest extends AbstractApi {
                 .fileWriter(fileWriter)
                 .generateable(this)
                 .classType(ClassTypes.CLASS())
-                .classImports(classGenerator -> {
+                .classImports(importGenerator -> {
                     for (Controller controller : this.controllers) {
-                        classGenerator.generateImport(controller.getImportString());
+                        importGenerator.generateImport(controller.getImportString());
                     }
-                    classGenerator.generateStaticImport("spark.Spark.*");
-                    classGenerator.generateImport(this.context.getImportString());
+                    importGenerator.generateStaticImport("spark.Spark.*");
+                    importGenerator.generateImport(this.context.getImportString());
                 })
                 .classBody(classGenerator -> {
                     classGenerator.generateAttribute(Access.PRIVATE, "context", "Context", "null");

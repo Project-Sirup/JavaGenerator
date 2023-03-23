@@ -49,13 +49,13 @@ public class Service extends AbstractGenerateable implements Contextable {
                 .generateable(this)
                 .classType(ClassTypes.CLASS())
                 .implement("Service<" + this.dataModel.getName() + ">")
-                .classImports(classGenerator -> {
-                    classGenerator.generateImport("java.sql.*;");
-                    classGenerator.generateImport(Imports.LIST);
-                    classGenerator.generateImport(Imports.ARRAY_LIST);
-                    classGenerator.generateImport(this.dataModel.getImportString());
-                    classGenerator.generateImport(this.database.getImportString());
-                    classGenerator.generateImport(interfaceImportString);
+                .classImports(importGenerator -> {
+                    importGenerator.generateImport("java.sql.*;");
+                    importGenerator.generateImport(Imports.LIST);
+                    importGenerator.generateImport(Imports.ARRAY_LIST);
+                    importGenerator.generateImport(this.dataModel.getImportString());
+                    importGenerator.generateImport(this.database.getImportString());
+                    importGenerator.generateImport(interfaceImportString);
                 })
                 .classBody(classGenerator -> {
                     classGenerator.generateAttribute(Access.PRIVATE, "connection", "Connection", "null");

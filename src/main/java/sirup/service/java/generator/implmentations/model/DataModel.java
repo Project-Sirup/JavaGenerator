@@ -48,12 +48,12 @@ public class DataModel extends AbstractGenerateable {
                 .classType(ClassTypes.RECORD())
                 .dataModel(this)
                 .implement("Model")
-                .classImports(classGenerator -> {
+                .classImports(importGenerator -> {
                     String[] splitString = this.getImportString().split("\\.");
                     splitString[splitString.length - 2] = "interfaces";
                     splitString[splitString.length - 1] = "Model";
                     String interfaceImportString = String.join(".", splitString);
-                    classGenerator.generateImport(interfaceImportString);
+                    importGenerator.generateImport(interfaceImportString);
                 })
                 .build()
                 .make();

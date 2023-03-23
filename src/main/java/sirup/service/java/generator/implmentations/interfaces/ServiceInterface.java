@@ -26,9 +26,9 @@ public class ServiceInterface extends AbstractInterface {
                 .generateable(this)
                 .classType(ClassTypes.INTERFACE())
                 .generic("T extends Model")
-                .classImports(classGenerator -> {
-                    classGenerator.generateImport(this.context.getMicroservice().getDatabase().getImportString());
-                    classGenerator.generateImport(Imports.LIST);
+                .classImports(importGenerator -> {
+                    importGenerator.generateImport(this.context.getMicroservice().getDatabase().getImportString());
+                    importGenerator.generateImport(Imports.LIST);
                 })
                 .classBody(classGenerator -> {
                     classGenerator.generateAbstractMethod("addDatabase", Type.VOID.type, new ArrayList<>(){{

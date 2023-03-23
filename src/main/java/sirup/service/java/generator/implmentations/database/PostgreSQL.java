@@ -65,8 +65,8 @@ public final class PostgreSQL extends AbstractDatabase {
                 .fileWriter(fileWriter)
                 .generateable(this)
                 .classType(ClassTypes.CLASS())
-                .classImports(classGenerator -> {
-                    classGenerator.generateImport("java.sql.*");
+                .classImports(importGenerator -> {
+                    importGenerator.generateImport("java.sql.*");
                 })
                 .classBody(classGenerator -> {
                     classGenerator.generateAttribute(Access.PRIVATE, "connectionString", STRING.type, "\"jdbc:postgresql://localhost:5432/javagen\"");

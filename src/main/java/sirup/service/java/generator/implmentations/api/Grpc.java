@@ -25,7 +25,7 @@ public final class Grpc extends AbstractApi {
 
     @Override
     public String getDependencyName() {
-        return "gRPC";
+        return "rpc";
     }
 
     @Override

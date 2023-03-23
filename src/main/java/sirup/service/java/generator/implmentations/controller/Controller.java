@@ -63,17 +63,17 @@ public class Controller extends AbstractGenerateable implements Contextable {
                 .fileWriter(fileWriter)
                 .generateable(this)
                 .classType(ClassTypes.CLASS())
-                .classImports(classGenerator -> {
-                    classGenerator.generateImport("com.google.gson.Gson");
-                    classGenerator.generateImport("spark.Request");
-                    classGenerator.generateImport("spark.Response");
-                    classGenerator.generateImport(this.context.getImportString());
-                    classGenerator.generateImport(this.dataModel.getImportString());
+                .classImports(importGenerator -> {
+                    importGenerator.generateImport("com.google.gson.Gson");
+                    importGenerator.generateImport("spark.Request");
+                    importGenerator.generateImport("spark.Response");
+                    importGenerator.generateImport(this.context.getImportString());
+                    importGenerator.generateImport(this.dataModel.getImportString());
                     String[] splitString = this.getImportString().split("\\.");
                     splitString[splitString.length -2] = "services";
                     splitString[splitString.length -1] = this.dataModel.getName() + "Service";
                     String serviceImportString = String.join(".", splitString);
-                    classGenerator.generateImport(serviceImportString);
+                    importGenerator.generateImport(serviceImportString);
                 })
                 .classBody(classGenerator -> {
                     classGenerator.generateAttribute(Access.PRIVATE, "context","Context", "null");

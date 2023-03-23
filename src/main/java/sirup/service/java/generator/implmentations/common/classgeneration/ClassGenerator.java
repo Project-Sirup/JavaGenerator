@@ -18,7 +18,7 @@ public final class ClassGenerator {
 
     private FileWriter fileWriter;
     private Generateable generateable;
-    private Filler importsFiller = (classGenerator) -> {};
+    private ImportFiller importsFiller = (importGenerator) -> {};
     private Filler classBodyFiller = (classGenerator) -> {};
     private ClassType classType = ClassTypes.CLASS();
     private String generic = null;
@@ -34,7 +34,7 @@ public final class ClassGenerator {
     private void setGenerateable(Generateable generateable) {
         this.generateable = generateable;
     }
-    private void setImportsFiller(Filler importsFiller) {
+    private void setImportsFiller(ImportFiller importsFiller) {
         this.importsFiller = importsFiller;
     }
     private void setClassBodyFiller(Filler classBodyFiller) {
@@ -69,13 +69,6 @@ public final class ClassGenerator {
 
     private String packageString(String packageName) {
         return "package " + packageName + ";\n\n";
-    }
-
-    private String importString(String fullImportName) {
-        return "import " + fullImportName + ";\n";
-    }
-    private String staticImportString(String staticImportFullName) {
-        return "import static " + staticImportFullName + ";\n";
     }
 
     private String classString() {
@@ -117,6 +110,10 @@ public final class ClassGenerator {
         return "\t}\n";
     }
 
+    public interface ImportFiller {
+        void fill(ImportGenerator importGenerator) throws IOException;
+    }
+
     public interface Filler {
         void fill(ClassGenerator classGenerator) throws IOException;
     }
@@ -132,7 +129,7 @@ public final class ClassGenerator {
 
     public void generateClass() throws IOException {
         this.generateJava((classGenerator) -> {
-            this.importsFiller.fill(classGenerator);
+            this.importsFiller.fill(new ImportGenerator(this.fileWriter));
             this.fileWriter.write(classString());
             this.classBodyFiller.fill(classGenerator);
         });
@@ -140,7 +137,7 @@ public final class ClassGenerator {
 
     public void generateRecord() throws IOException {
         this.generateJava((classGenerator) -> {
-            this.importsFiller.fill(classGenerator);
+            this.importsFiller.fill(new ImportGenerator(this.fileWriter));
             this.fileWriter.write(recordString());
             this.classBodyFiller.fill(classGenerator);
         });
@@ -148,16 +145,10 @@ public final class ClassGenerator {
 
     public void generateInterface() throws IOException {
         this.generateJava((classGenerator) -> {
-            this.importsFiller.fill(classGenerator);
+            this.importsFiller.fill(new ImportGenerator(this.fileWriter));
             this.fileWriter.write(interfaceString());
             this.classBodyFiller.fill(classGenerator);
         });
-    }
-    public void generateImport(String fullImportName) throws IOException {
-        this.fileWriter.write(importString(fullImportName));
-    }
-    public void generateStaticImport(String fullImportName) throws IOException {
-        this.fileWriter.write(staticImportString(fullImportName));
     }
     public void generateConstructor(List<DataField> args, InnerFiller constructorBody) throws IOException {
         this.fileWriter.write("\tpublic " + this.generateable.getName() +
@@ -211,7 +202,7 @@ public final class ClassGenerator {
             this.classGenerator.setGenerateable(generateable);
             return this;
         }
-        public ClassBuilder classImports(Filler importsFiller) {
+        public ClassBuilder classImports(ImportFiller importsFiller) {
             this.classGenerator.setImportsFiller(importsFiller);
             return this;
         }
@@ -243,6 +234,24 @@ public final class ClassGenerator {
         @Override
         public ClassGenerator build() {
             return this.classGenerator;
+        }
+    }
+    public static class ImportGenerator {
+        private final FileWriter fileWriter;
+        private ImportGenerator(final FileWriter fileWriter) {
+            this.fileWriter = fileWriter;
+        }
+        private String importString(String fullImportName) {
+            return "import " + fullImportName + ";\n";
+        }
+        private String staticImportString(String staticImportFullName) {
+            return "import static " + staticImportFullName + ";\n";
+        }
+        public void generateImport(String fullImportName) throws IOException {
+            this.fileWriter.write(importString(fullImportName));
+        }
+        public void generateStaticImport(String fullImportName) throws IOException {
+            this.fileWriter.write(staticImportString(fullImportName));
         }
     }
 }
