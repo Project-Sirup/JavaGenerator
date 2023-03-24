@@ -1,6 +1,5 @@
 package sirup.service.java.generator.api;
 
-import com.google.gson.Gson;
 import sirup.service.java.generator.implmentations.microservice.LanguageNotSupportedException;
 import sirup.service.java.generator.implmentations.microservice.Microservice;
 import sirup.service.java.generator.implmentations.api.NoSuchApiException;
@@ -18,14 +17,11 @@ import static spark.Spark.halt;
 
 public class MicroserviceController {
 
-    private final Gson gson = new Gson();
-
     public Object generate(Request request, Response response) {
         try {
-            MicroserviceRequest microserviceRequest = gson.fromJson(request.body(), MicroserviceRequest.class);
-            Microservice microservice = Microservice.fromJsonRequest(microserviceRequest);
-            microservice.make();
-            return "http://127.0.0.1:4567/api/v1/microservice/" + microserviceRequest.microservice().microserviceId();
+            Microservice microservice = Microservice.fromJsonRequest(request.body());
+            String microserviceId = microservice.make();
+            return "http://127.0.0.1:" + Env.API_PORT + Env.API_BASE_URL + "/microservice/" + microserviceId;
         } catch (NoSuchApiException | NoSuchDatabaseException | NoSuchBuildToolException | LanguageNotSupportedException e) {
             e.printStackTrace();
             halt(405, e.getMessage());
@@ -47,7 +43,7 @@ public class MicroserviceController {
             FileZipper.zip(dir, dir.getName(), zipOutputStream);
             zipOutputStream.close();
         } catch (IOException e) {
-            halt(405, "Server error!");
+            halt(500, "Server error!");
         }
         return response.raw();
     }

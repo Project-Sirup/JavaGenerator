@@ -30,6 +30,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static sirup.service.java.generator.implmentations.common.Type.*;
 import static sirup.service.java.generator.implmentations.common.StringUtil.*;
@@ -42,9 +43,11 @@ public final class Microservice extends AbstractGenerateable {
     private String name;
     private String id;
     private String packageName;
+    private String groupId;
     private final Context context;
     private final List<AbstractInterface> interfaces;
     private Generateable dbInit;
+    private final Generateable main;
 
     private Microservice() {
         //Default configuration
@@ -52,11 +55,12 @@ public final class Microservice extends AbstractGenerateable {
         this.buildTool = Maven.DEFAULT;
         this.database = PostgreSQL.DEFAULT;
         this.name = "DEFAULT";
-        this.packageName = "org.example";
+        this.packageName = ".microservice";
+        this.groupId = "org.example";
 
         ServiceInterface serviceInterface = new ServiceInterface();
         ModelInterface modelInterface = new ModelInterface();
-
+        this.main = new Main(this);
         this.context = new Context(this);
         this.interfaces = new ArrayList<>(){{
             add(serviceInterface);
@@ -65,37 +69,14 @@ public final class Microservice extends AbstractGenerateable {
     }
 
     public static Microservice fromJsonRequest(String jsonString) {
-        System.out.println("Creating microservice... ");
-        long start = System.currentTimeMillis();
-        Microservice m = RequestParser.fromJsonRequest(jsonString);
-        System.out.println("Microservice created in: " + (System.currentTimeMillis() - start) + "ms" );
-        return m;
+        return RequestParser.fromJsonRequest(jsonString);
     }
     public static Microservice fromJsonRequest(MicroserviceRequest microserviceRequest) {
-        System.out.println("Creating microservice... ");
-        long start = System.currentTimeMillis();
-        Microservice m = RequestParser.fromJsonRequest(microserviceRequest);
-        System.out.println("Microservice created in: " + (System.currentTimeMillis() - start) + "ms" );
-        return m;
+        return RequestParser.fromJsonRequest(microserviceRequest);
     }
 
     public static MicroserviceBuilder builder() {
         return new MicroserviceBuilder();
-    }
-
-    @Override
-    public String toString() {
-        return "{\n" +
-                "api: {\n" +
-                api.toString() + "\n" +
-                "}\n" +
-                "buildTool: {\n" +
-                buildTool.toString() + "\n" +
-                "}\n" +
-                "database: {\n" +
-                database.toString() + "\n" +
-                "}\n" +
-                "}";
     }
 
     private void setApi(IApi api) {
@@ -120,10 +101,16 @@ public final class Microservice extends AbstractGenerateable {
         return this.interfaces;
     }
 
-    public void make() {
-        FileGenerator fileGenerator = new FileGenerator(this.id, this.getName(), this.getPackageName());
+    public String make() {
+        System.out.println("Creating microservice...");
+        long start = System.currentTimeMillis();
+        if (this.id == null || this.id.isEmpty()) {
+            this.id = UUID.randomUUID().toString();
+        }
+        FileGenerator fileGenerator = new FileGenerator(this.id, this.getName(), this.groupId);
         fileGenerator.generateFileStructure();
         fileGenerator.generateClassFile(this);
+        fileGenerator.generateClassFile(this.main);
         fileGenerator.generateClassFile(this.api);
         fileGenerator.generateClassFile(this.database);
         for (Controller controller : this.api.getControllers()) {
@@ -141,6 +128,8 @@ public final class Microservice extends AbstractGenerateable {
         }
         fileGenerator.generate(this.dbInit);
         fileGenerator.generate(this.buildTool);
+        System.out.println("Microservice created in: " + (System.currentTimeMillis() - start) + "ms" );
+        return this.id;
     }
 
     @Override
@@ -161,7 +150,7 @@ public final class Microservice extends AbstractGenerateable {
                     }
                 })
                 .classBody(classGenerator -> {
-                    classGenerator.generateStaticMethod("main", VOID.type, new DataField[]{new DataField(STRING_ARRAY.type, "args")}, () -> {
+                    classGenerator.generateMethod("start", VOID.type, null, () -> {
                         classGenerator.write(tab(2) + "Context context = new Context();\n");
                         classGenerator.write(tab(2) + "context.addDatabase(new " + this.database.getName() + "());\n");
                         for (Service service : this.database.getServices()) {
@@ -179,9 +168,9 @@ public final class Microservice extends AbstractGenerateable {
         return this.name;
     }
 
-    @Override
-    public void setPackageName(String packageName) {
-        this.packageName = packageName;
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+        this.packageName = groupId + ".microservice";
     }
 
     @Override
@@ -192,11 +181,6 @@ public final class Microservice extends AbstractGenerateable {
     @Override
     public String getDir() {
         return StringUtil.SOURCE_DIR + "/" + this.getPackageName().replace(".", "/");
-    }
-
-    @Override
-    public String getImportString() {
-        return this.getPackageName() + "." + this.getName();
     }
 
     public static class MicroserviceBuilder {
@@ -213,8 +197,8 @@ public final class Microservice extends AbstractGenerateable {
             this.microservice.setName(name);
             return this;
         }
-        public MicroserviceBuilder packageName(String packageName) {
-            this.microservice.setPackageName(packageName);
+        public MicroserviceBuilder groupId(String groupId) {
+            this.microservice.setGroupId(groupId);
             return this;
         }
         public MicroserviceBuilder api(IApiBuilder<? extends IApi> apiBuilder) {
@@ -240,28 +224,63 @@ public final class Microservice extends AbstractGenerateable {
         }
 
         public Microservice build() {
+            //TODO: simplify
+            this.microservice.main.setGroupId(this.microservice.groupId);
             this.microservice.buildTool.updateDependencies(this.microservice.api, this.microservice.database);
-            this.microservice.api.setPackageName(this.microservice.getPackageName());
+            this.microservice.api.setGroupId(this.microservice.groupId);
             this.microservice.api.setContext(this.microservice.context);
-            this.microservice.database.setPackageName(this.microservice.getPackageName());
+            this.microservice.database.setGroupId(this.microservice.groupId);
             this.microservice.dbInit = this.microservice.database.getDbInit();
             for (Controller controller : this.microservice.api.getControllers()) {
                 controller.setContext(this.microservice.context);
-                controller.setPackageName(this.microservice.getPackageName());
+                controller.setGroupId(this.microservice.groupId);
             }
             for (Service service : this.microservice.database.getServices()) {
-                service.setPackageName(this.microservice.getPackageName());
-                service.setContext(this.microservice.context);
+                service.setGroupId(this.microservice.groupId);
             }
             for (DataModel dataModel : this.microservice.database.getDataModels()) {
-                dataModel.setPackageName(this.microservice.getPackageName());
+                dataModel.setGroupId(this.microservice.groupId);
             }
-            this.microservice.context.setPackageName(this.microservice.getPackageName());
+            this.microservice.context.setGroupId(this.microservice.groupId);
             for (AbstractInterface generateable : this.microservice.interfaces) {
-                generateable.setPackageName(this.microservice.getPackageName());
+                generateable.setGroupId(this.microservice.groupId);
                 generateable.setContext(this.microservice.context);
             }
             return this.microservice;
+        }
+    }
+    public static class Main extends AbstractGenerateable {
+
+        private final Microservice microservice;
+
+        public Main(final Microservice microservice) {
+            this.microservice = microservice;
+            this.packageName = "";
+        }
+
+        @Override
+        public void fillFile(FileWriter fileWriter) throws IOException {
+            ClassGenerator.builder()
+                    .fileWriter(fileWriter)
+                    .generateable(this)
+                    .classType(ClassTypes.CLASS())
+                    .classImports(importGenerator -> {
+                        importGenerator.generateImport(this.microservice.getImportString());
+                    })
+                    .classBody(classGenerator -> {
+                        classGenerator.generateMethod("main", VOID.type, new ArrayList<>(){{
+                            add(new DataField(STRING_ARRAY.type,"args"));
+                        }},() -> {
+                            classGenerator.write(tab(2) + "new " + capitalize(this.microservice.getName()) + "().start();\n");
+                        });
+                    })
+                    .build()
+                    .make();
+        }
+
+        @Override
+        public String getName() {
+            return "Main";
         }
     }
 }

@@ -60,7 +60,9 @@ public final class ClassGenerator {
     }
 
     public void make() throws IOException {
+        System.out.print("Creating " + this.generateable.getName() + "... ");
         this.classType.fill(this);
+        System.out.println("Done");
     }
 
     public void write(String string) throws IOException {

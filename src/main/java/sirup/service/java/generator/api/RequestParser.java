@@ -39,7 +39,7 @@ public class RequestParser {
         return Microservice.builder()
                 .id(m.microservice().microserviceId())
                 .name(m.microservice().microserviceName())
-                .packageName(m.microservice().language().options().packageName())
+                .groupId(m.microservice().language().options().groupId())
                 .api(APIs.ofType(m.microservice().api().type())
                         .options(m.microservice().api().options())
                 )

@@ -8,13 +8,12 @@ public abstract class AbstractInterface extends AbstractGenerateable implements 
 
     protected Context context;
 
-    @Override
-    public void setContext(Context context) {
-        this.context = context;
+    public AbstractInterface() {
+        this.packageName = ".interfaces";
     }
 
     @Override
-    public void setPackageName(String packageName) {
-        this.packageName = packageName + ".interfaces";
+    public void setContext(Context context) {
+        this.context = context;
     }
 }

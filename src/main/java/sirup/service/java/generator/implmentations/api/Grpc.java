@@ -1,16 +1,12 @@
 package sirup.service.java.generator.implmentations.api;
 
 import sirup.service.java.generator.api.MicroserviceRequest;
-import sirup.service.java.generator.implmentations.common.Endpoint;
-import sirup.service.java.generator.implmentations.common.EndpointGroup;
 import sirup.service.java.generator.implmentations.common.classgeneration.ClassGenerator;
 import sirup.service.java.generator.implmentations.common.classgeneration.ClassTypes;
-import sirup.service.java.generator.interfaces.api.IApi;
 import sirup.service.java.generator.interfaces.api.IApiBuilder;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
 
 import static sirup.service.java.generator.implmentations.common.StringUtil.tab;
 

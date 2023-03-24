@@ -13,7 +13,7 @@ public class JsonTest {
                         "name": "java",
                         "options": {
                             "buildTool": "maven",
-                            "packageName": "du.sdu.mmmi"
+                            "groupId": "du.sdu.mmmi"
                         }
                     },
                     "database": {
@@ -155,7 +155,7 @@ public class JsonTest {
                         "name": "java",
                         "options": {
                             "buildTool": "maven",
-                            "packageName": "dk.sdu.mmmi"
+                            "groupId": "dk.sdu.mmmi"
                         }
                     },
                     "database": {

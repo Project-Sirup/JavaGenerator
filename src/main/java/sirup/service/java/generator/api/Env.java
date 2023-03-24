@@ -3,9 +3,11 @@ package sirup.service.java.generator.api;
 import io.github.cdimascio.dotenv.Dotenv;
 
 public class Env {
-    public static final int PORT;
+    public static final int API_PORT;
+    public static final String API_BASE_URL;
     static {
         Dotenv dotenv = Dotenv.load();
-        PORT = Integer.parseInt(dotenv.get("PORT"));
+        API_PORT = Integer.parseInt(dotenv.get("API_PORT"));
+        API_BASE_URL = dotenv.get("API_BASE_URL");
     }
 }

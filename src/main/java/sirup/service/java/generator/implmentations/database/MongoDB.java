@@ -3,10 +3,7 @@ package sirup.service.java.generator.implmentations.database;
 import sirup.service.java.generator.implmentations.common.classgeneration.ClassGenerator;
 import sirup.service.java.generator.implmentations.common.classgeneration.ClassTypes;
 import sirup.service.java.generator.implmentations.model.DataModel;
-import sirup.service.java.generator.implmentations.service.Service;
-import sirup.service.java.generator.interfaces.common.Builder;
 import sirup.service.java.generator.interfaces.common.Generateable;
-import sirup.service.java.generator.interfaces.database.IDatabase;
 import sirup.service.java.generator.interfaces.database.IDatabaseBuilder;
 
 import java.io.FileWriter;

@@ -1,7 +1,5 @@
 package sirup.service.java.generator.implmentations.common;
 
-import java.util.Locale;
-
 public record Endpoint(HttpMethod method, String path, String linkedMethodName) {
 
     @Override

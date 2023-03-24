@@ -22,15 +22,11 @@ public class Context extends AbstractGenerateable {
 
     public Context(final Microservice microservice) {
         this.microservice = microservice;
+        this.packageName = ".context";
     }
 
     public Microservice getMicroservice() {
         return this.microservice;
-    }
-
-    @Override
-    public void setPackageName(String packageName) {
-        this.packageName = packageName + ".context";
     }
 
     @Override

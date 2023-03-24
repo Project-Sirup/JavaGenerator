@@ -1,7 +1,6 @@
 package sirup.service.java.generator.implmentations.service;
 
 import sirup.service.java.generator.implmentations.common.AbstractGenerateable;
-import sirup.service.java.generator.implmentations.common.Type;
 import sirup.service.java.generator.implmentations.common.classgeneration.*;
 import sirup.service.java.generator.implmentations.common.DataField;
 import sirup.service.java.generator.implmentations.context.Context;
@@ -18,15 +17,15 @@ import java.util.stream.Collectors;
 import static sirup.service.java.generator.implmentations.common.StringUtil.*;
 import static sirup.service.java.generator.implmentations.common.Type.*;
 
-public class Service extends AbstractGenerateable implements Contextable {
+public class Service extends AbstractGenerateable {
 
     private final DataModel dataModel;
     private final IDatabase database;
-    private Context context;
 
     public Service(final DataModel dataModel, final IDatabase database) {
         this.dataModel = dataModel;
         this.database = database;
+        this.packageName = ".services";
     }
 
     public static Service of(DataModel dataModel, IDatabase database) {
@@ -60,7 +59,9 @@ public class Service extends AbstractGenerateable implements Contextable {
                 .classBody(classGenerator -> {
                     classGenerator.generateAttribute(Access.PRIVATE, "connection", "Connection", "null");
                     classGenerator.generateAnnotation(Annotations.OVERRIDE);
-                    classGenerator.generateMethod("addDatabase", VOID.type, new ArrayList<>(){{add(new DataField(database.getName(), "database"));}}, () -> {
+                    classGenerator.generateMethod("addDatabase", VOID.type, new ArrayList<>(){{
+                        add(new DataField(database.getName(), "database"));
+                    }}, () -> {
                         classGenerator.write(tab(2) + "this.connection = database.getConnection();\n");
                     });
                     String t = this.dataModel.getName();
@@ -191,17 +192,7 @@ public class Service extends AbstractGenerateable implements Contextable {
     }
 
     @Override
-    public void setPackageName(String packageName) {
-        this.packageName = packageName + ".services";
-    }
-
-    @Override
     public String getName() {
         return capitalize(this.dataModel.getName()) + "Service";
-    }
-
-    @Override
-    public void setContext(Context context) {
-        this.context = context;
     }
 }

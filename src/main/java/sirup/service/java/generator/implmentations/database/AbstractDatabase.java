@@ -16,6 +16,7 @@ public abstract class AbstractDatabase extends AbstractGenerateable implements I
     public AbstractDatabase() {
         this.services = new ArrayList<>();
         this.dataModels = new ArrayList<>();
+        this.packageName = ".database";
     }
 
     @Override
@@ -26,10 +27,5 @@ public abstract class AbstractDatabase extends AbstractGenerateable implements I
     @Override
     public List<DataModel> getDataModels() {
         return this.dataModels;
-    }
-
-    @Override
-    public void setPackageName(String packageName) {
-        this.packageName = packageName + ".database";
     }
 }

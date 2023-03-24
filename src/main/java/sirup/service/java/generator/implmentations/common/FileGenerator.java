@@ -54,12 +54,13 @@ public class FileGenerator {
     public void generateFileStructure() {
         new File(BASE_DIR + "/" + microserviceId + "/" + outerName + "/" + SOURCE_DIR + "/" + basePackageDir).mkdirs();
         new File(BASE_DIR + "/" + microserviceId + "/" + outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/api").mkdirs();
-        new File(BASE_DIR + "/" + microserviceId + "/" + outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/database").mkdirs();
-        new File(BASE_DIR + "/" + microserviceId + "/" + outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/controllers").mkdirs();
-        new File(BASE_DIR + "/" + microserviceId + "/" + outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/services").mkdirs();
-        new File(BASE_DIR + "/" + microserviceId + "/" + outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/models").mkdirs();
-        new File(BASE_DIR + "/" + microserviceId + "/" + outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/interfaces").mkdirs();
         new File(BASE_DIR + "/" + microserviceId + "/" + outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/context").mkdirs();
+        new File(BASE_DIR + "/" + microserviceId + "/" + outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/controllers").mkdirs();
+        new File(BASE_DIR + "/" + microserviceId + "/" + outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/database").mkdirs();
+        new File(BASE_DIR + "/" + microserviceId + "/" + outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/interfaces").mkdirs();
+        new File(BASE_DIR + "/" + microserviceId + "/" + outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/microservice").mkdirs();
+        new File(BASE_DIR + "/" + microserviceId + "/" + outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/models").mkdirs();
+        new File(BASE_DIR + "/" + microserviceId + "/" + outerName + "/" + SOURCE_DIR + "/" + basePackageDir + "/services").mkdirs();
         new File(BASE_DIR + "/" + microserviceId + "/" + outerName + "/" + RESOURCES_DIR).mkdirs();
         new File(BASE_DIR + "/" + microserviceId + "/" + outerName + "/" + TEST_DIR).mkdirs();
     }

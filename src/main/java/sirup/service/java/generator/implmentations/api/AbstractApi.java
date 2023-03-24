@@ -2,7 +2,6 @@ package sirup.service.java.generator.implmentations.api;
 
 import sirup.service.java.generator.implmentations.common.AbstractGenerateable;
 import sirup.service.java.generator.implmentations.controller.Controller;
-import sirup.service.java.generator.implmentations.interfaces.AbstractInterface;
 import sirup.service.java.generator.interfaces.api.IApi;
 import sirup.service.java.generator.interfaces.common.Generateable;
 
@@ -17,6 +16,7 @@ public abstract class AbstractApi extends AbstractGenerateable implements IApi {
 
     public AbstractApi() {
         this.controllers = new ArrayList<>();
+        this.packageName = ".api";
     }
 
     @Override
@@ -27,11 +27,6 @@ public abstract class AbstractApi extends AbstractGenerateable implements IApi {
     @Override
     public int getPort() {
         return this.port;
-    }
-
-    @Override
-    public void setPackageName(String packageName) {
-        this.packageName = packageName + ".api";
     }
 
     @Override

@@ -5,7 +5,7 @@ import java.util.List;
 public record MicroserviceRequest(int sirup_v, boolean docker, Microservice microservice) {
     public record Microservice(String microserviceId, String microserviceName, Language language, Database database, Api api, External external) {
         public record Language(String name, Options options) {
-            public record Options(String buildTool, String packageName) {}
+            public record Options(String buildTool, String groupId) {}
         }
         public record Database(String name, Options options, Data data) {
             public record Options() {}

@@ -4,7 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public interface Generateable extends Nameable {
-    void setPackageName(String packageName);
+    void setGroupId(String groupId);
     String getPackageName();
     String getDir();
     String getImportString();

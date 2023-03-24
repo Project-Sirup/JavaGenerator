@@ -13,7 +13,7 @@
           }
         },
         {
-          "packageName": {
+          "groupId": {
             "value": "dataTypes.simple.string"
           }
         }

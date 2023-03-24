@@ -14,7 +14,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 
-import static sirup.service.java.generator.implmentations.common.classgeneration.ClassGenerator.*;
 import static sirup.service.java.generator.implmentations.common.Type.*;
 import static sirup.service.java.generator.implmentations.common.StringUtil.*;
 
@@ -29,6 +28,7 @@ public class Controller extends AbstractGenerateable implements Contextable {
         this.dataModel = dataModel;
         this.methods = new HashSet<>();
         this.methodLink = new HashMap<>();
+        this.packageName = ".controllers";
     }
 
     public static Controller of(DataModel dataModel) {
@@ -50,11 +50,6 @@ public class Controller extends AbstractGenerateable implements Contextable {
     @Override
     public void setContext(Context context) {
         this.context = context;
-    }
-
-    @Override
-    public void setPackageName(String packageName) {
-        this.packageName = packageName + ".controllers";
     }
 
     @Override

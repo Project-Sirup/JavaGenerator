@@ -17,6 +17,7 @@ public class DataModel extends AbstractGenerateable {
 
     private DataModel() {
         this.dataFields = new ArrayList<>();
+        this.packageName = ".models";
     }
 
     private void setName(String name) {
@@ -57,11 +58,6 @@ public class DataModel extends AbstractGenerateable {
                 })
                 .build()
                 .make();
-    }
-
-    @Override
-    public void setPackageName(String packageName) {
-        this.packageName = packageName + ".models";
     }
 
     public static class DataModelBuilder {

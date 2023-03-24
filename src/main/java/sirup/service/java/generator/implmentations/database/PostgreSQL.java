@@ -148,11 +148,6 @@ public final class PostgreSQL extends AbstractDatabase {
         }
 
         @Override
-        public void setPackageName(String packageName) {
-            this.packageName = packageName;
-        }
-
-        @Override
         public void fillFile(FileWriter fileWriter) throws IOException {
             for (DataModel dataModel : this.dataModels) {
                 fileWriter.write("CREATE TABLE " + uncapitalize(dataModel.getName()) + "s (\n");
