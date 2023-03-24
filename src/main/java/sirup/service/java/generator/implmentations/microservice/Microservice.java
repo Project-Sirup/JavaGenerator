@@ -17,7 +17,7 @@ import sirup.service.java.generator.implmentations.controller.Controller;
 import sirup.service.java.generator.implmentations.database.PostgreSQL;
 import sirup.service.java.generator.implmentations.common.FileGenerator;
 import sirup.service.java.generator.implmentations.common.StringUtil;
-import sirup.service.java.generator.implmentations.service.Service;
+import sirup.service.java.generator.implmentations.service.AbstractService;
 import sirup.service.java.generator.interfaces.api.IApi;
 import sirup.service.java.generator.interfaces.api.IApiBuilder;
 import sirup.service.java.generator.interfaces.buildtool.IBuildTool;
@@ -116,7 +116,7 @@ public final class Microservice extends AbstractGenerateable {
         for (Controller controller : this.api.getControllers()) {
             fileGenerator.generateClassFile(controller);
         }
-        for (Service service : this.database.getServices()) {
+        for (AbstractService service : this.database.getServices()) {
             fileGenerator.generateClassFile(service);
         }
         for (DataModel dataModel : this.database.getDataModels()) {
@@ -153,7 +153,7 @@ public final class Microservice extends AbstractGenerateable {
                     classGenerator.generateMethod("start", VOID.type, null, () -> {
                         classGenerator.write(tab(2) + "Context context = new Context();\n");
                         classGenerator.write(tab(2) + "context.addDatabase(new " + this.database.getName() + "());\n");
-                        for (Service service : this.database.getServices()) {
+                        for (AbstractService service : this.database.getServices()) {
                             classGenerator.write(tab(2) + "context.addService(" + service.getDataModel().getName() + ".class, new " + service.getName() + "());\n");
                         }
                         classGenerator.write(tab(2) + "new " + this.api.getName() + "(context).start();\n");
@@ -235,7 +235,7 @@ public final class Microservice extends AbstractGenerateable {
                 controller.setContext(this.microservice.context);
                 controller.setGroupId(this.microservice.groupId);
             }
-            for (Service service : this.microservice.database.getServices()) {
+            for (AbstractService service : this.microservice.database.getServices()) {
                 service.setGroupId(this.microservice.groupId);
             }
             for (DataModel dataModel : this.microservice.database.getDataModels()) {

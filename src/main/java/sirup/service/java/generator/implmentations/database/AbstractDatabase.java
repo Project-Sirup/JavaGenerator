@@ -2,7 +2,7 @@ package sirup.service.java.generator.implmentations.database;
 
 import sirup.service.java.generator.implmentations.common.AbstractGenerateable;
 import sirup.service.java.generator.implmentations.model.DataModel;
-import sirup.service.java.generator.implmentations.service.Service;
+import sirup.service.java.generator.implmentations.service.AbstractService;
 import sirup.service.java.generator.interfaces.database.IDatabase;
 
 import java.util.ArrayList;
@@ -10,7 +10,7 @@ import java.util.List;
 
 public abstract class AbstractDatabase extends AbstractGenerateable implements IDatabase {
 
-    protected final List<Service> services;
+    protected final List<AbstractService> services;
     protected final List<DataModel> dataModels;
 
     public AbstractDatabase() {
@@ -20,7 +20,7 @@ public abstract class AbstractDatabase extends AbstractGenerateable implements I
     }
 
     @Override
-    public List<Service> getServices() {
+    public List<AbstractService> getServices() {
         return this.services;
     }
 
