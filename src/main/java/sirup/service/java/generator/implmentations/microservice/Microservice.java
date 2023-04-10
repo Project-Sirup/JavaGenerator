@@ -25,6 +25,7 @@ import sirup.service.java.generator.interfaces.buildtool.IBuildToolBuilder;
 import sirup.service.java.generator.interfaces.common.Generateable;
 import sirup.service.java.generator.interfaces.database.IDatabase;
 import sirup.service.java.generator.interfaces.database.IDatabaseBuilder;
+import sirup.service.log.rpc.client.LogClient;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -36,6 +37,8 @@ import static sirup.service.java.generator.implmentations.common.Type.*;
 import static sirup.service.java.generator.implmentations.common.StringUtil.*;
 
 public final class Microservice extends AbstractGenerateable {
+
+    private final LogClient logger = LogClient.getInstance();
 
     private IApi api;
     private IBuildTool buildTool;
@@ -96,17 +99,18 @@ public final class Microservice extends AbstractGenerateable {
     }
     private void setId(String id) {
         this.id = id;
+        System.out.println(id);
     }
     public List<AbstractInterface> getInterfaces() {
         return this.interfaces;
     }
 
     public String make() {
-        System.out.println("Creating microservice...");
         long start = System.currentTimeMillis();
         if (this.id == null || this.id.isEmpty()) {
             this.id = UUID.randomUUID().toString();
         }
+        //logger.info("Generating service [" + this.id + "] -> " + this.api.getName() + " : " + this.database.getName());
         FileGenerator fileGenerator = new FileGenerator(this.id, this.getName(), this.groupId);
         fileGenerator.generateFileStructure();
         fileGenerator.generateClassFile(this);
@@ -128,7 +132,7 @@ public final class Microservice extends AbstractGenerateable {
         }
         fileGenerator.generate(this.dbInit);
         fileGenerator.generate(this.buildTool);
-        System.out.println("Microservice created in: " + (System.currentTimeMillis() - start) + "ms" );
+        logger.info("Microservice [" + this.id + "] created in: " + (System.currentTimeMillis() - start) + "ms" );
         return this.id;
     }
 
@@ -169,8 +173,10 @@ public final class Microservice extends AbstractGenerateable {
     }
 
     public void setGroupId(String groupId) {
-        this.groupId = groupId;
-        this.packageName = groupId + ".microservice";
+        if (groupId != null){
+            this.groupId = groupId;
+        }
+        this.packageName = this.groupId + ".microservice";
     }
 
     @Override

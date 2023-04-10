@@ -161,7 +161,9 @@ public final class Rest extends AbstractApi {
         public IApiBuilder<Rest> options(MicroserviceRequest.Microservice.Api.Options options) {
             this.rest.setPort(options.port());
             this.rest.addEndpoints(RequestParser.iterateEndpoints(options.endpoints()));
-            this.rest.addEndpointGroup(RequestParser.iterateEndpointGroups(options.endpointGroups().get(0),0).build());
+            if (options.endpointGroups() != null) {
+                this.rest.addEndpointGroup(RequestParser.iterateEndpointGroups(options.endpointGroups().get(0),0).build());
+            }
             return this;
         }
 

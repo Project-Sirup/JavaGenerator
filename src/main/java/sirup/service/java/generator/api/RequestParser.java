@@ -26,9 +26,11 @@ public class RequestParser {
         m.microservice().database().data().collections().forEach(collection -> {
             DataModel.DataModelBuilder dataModelBuilder = DataModel.builder();
             dataModelBuilder.name(collection.name());
-            collection.fields().forEach(field -> {
-                dataModelBuilder.dataField(field.type(), field.name(), field.ref());
-            });
+            if (collection.fields() != null) {
+                collection.fields().forEach(field -> {
+                    dataModelBuilder.dataField(field.type(), field.name(), field.ref());
+                });
+            }
             DATA_MODEL_MAP.put(collection.name(), dataModelBuilder.build());
         });
         String lang = m.microservice().language().name().toLowerCase();
@@ -39,14 +41,25 @@ public class RequestParser {
         return Microservice.builder()
                 .id(m.microservice().microserviceId())
                 .name(m.microservice().microserviceName())
-                .groupId(m.microservice().language().options().groupId())
-                .api(APIs.ofType(m.microservice().api().type())
-                        .options(m.microservice().api().options())
+                .groupId(m.microservice()
+                        .language()
+                        .options().groupId())
+                .api(APIs.ofType(m.microservice()
+                                .api()
+                                .type())
+                        .options(m.microservice()
+                                .api()
+                                .options())
                 )
-                .database(Databases.ofType(m.microservice().database().name())
+                .database(Databases.ofType(m.microservice()
+                                .database()
+                                .name())
                         .dataModels(DATA_MODEL_MAP.values().stream().toList())
                 )
-                .buildTool(BuildTools.ofType(m.microservice().language().options().buildTool()))
+                .buildTool(BuildTools.ofType(m.microservice()
+                        .language()
+                        .options()
+                        .buildTool()))
                 .build();
     }
     public static Microservice fromJsonRequest(String json) {
@@ -55,9 +68,11 @@ public class RequestParser {
 
     public static List<Endpoint> iterateEndpoints(List<MicroserviceRequest.Microservice.Api.Options.Endpoint> inputEndpoints) {
         List<Endpoint> endpoints = new ArrayList<>();
-        inputEndpoints.forEach(inputEndpoint -> {
-            endpoints.add(new Endpoint(Endpoint.HttpMethod.from(inputEndpoint.method()), inputEndpoint.path(), inputEndpoint.linkedMethod()));
-        });
+        if (inputEndpoints != null) {
+            inputEndpoints.forEach(inputEndpoint -> {
+                endpoints.add(new Endpoint(Endpoint.HttpMethod.from(inputEndpoint.method()), inputEndpoint.path(), inputEndpoint.linkedMethod()));
+            });
+        }
         return endpoints;
     }
 

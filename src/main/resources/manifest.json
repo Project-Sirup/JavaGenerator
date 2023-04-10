@@ -4,12 +4,28 @@
   "templates": [],
   "languages": [
     {
-      "language": "java",
+      "language": "Java",
       "description": "Generate a microservice written in Java 17",
       "options": [
         {
           "buildTool": {
-            "selection": ["maven"]
+            "selection": ["Maven","Gradle"]
+          }
+        },
+        {
+          "groupId": {
+            "value": "dataTypes.simple.string"
+          }
+        }
+      ]
+    },
+    {
+      "language": "Kotlin",
+      "description": "Generate a microservice written in Kotlin",
+      "options": [
+        {
+          "buildTool": {
+            "selection": ["Maven","Gradle"]
           }
         },
         {
@@ -22,7 +38,7 @@
   ],
   "apiTypes": [
     {
-      "apiType": "rest",
+      "apiType": "REST",
       "description": "Generates a microservice with a REST API, using Apache Spark",
       "options": [
         {
@@ -43,7 +59,7 @@
       ]
     },
     {
-      "apiType": "grpc",
+      "apiType": "gRPC",
       "description": "Generates a microservice with a gRPC API",
       "options": [
         {
@@ -66,23 +82,29 @@
   ],
   "databases": [
     {
-      "database": "postgresql",
-      "options": [
-        {
-          "name": "dataTypes",
-          "values": [
-            "dataTypes.simple.string",
-            "dataTypes.simple.int32",
-            "dataTypes.simple.int64",
-            "dataTypes.simple.float",
-            "dataTypes.simple.boolean"
-          ]
-        }
-      ]
+      "database": "PostgreSQL",
+      "description": "Generates the microservice with a PostgreSQL connection and classes for accessing data in the database",
+      "supportedTypes": [
+        "string",
+        "int32",
+        "int64",
+        "float",
+        "boolean"
+      ],
+      "options": []
+    },
+    {
+      "database": "MongoDB",
+      "description": "Generates the microservice with a MongoDB connection and classes for accessing data in the database",
+      "supportedTypes": [
+        "any"
+      ],
+      "options": []
     }
   ],
   "dataTypes": {
     "simple": {
+      "any": {},
       "string": {},
       "int32": {},
       "int64": {},

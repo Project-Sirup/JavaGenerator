@@ -60,9 +60,7 @@ public final class ClassGenerator {
     }
 
     public void make() throws IOException {
-        System.out.print("Creating " + this.generateable.getName() + "... ");
         this.classType.fill(this);
-        System.out.println("Done");
     }
 
     public void write(String string) throws IOException {
@@ -82,7 +80,7 @@ public final class ClassGenerator {
     private String recordString() {
         String impl = this.implementations == null ? "" : " implements " + String.join(", ", this.implementations);
         return "\npublic record " + capitalize(this.generateable.getName()) +
-                "(" + this.dataModel.getDataFields().stream().map(field -> field.type() + " " + field.name()).collect(Collectors.joining(", "))  + ") " +
+                "(" + this.dataModel.getDataFields().stream().map(field -> field.type() + " " + field.name()).collect(Collectors.joining(", "))  + ")" +
                 impl + " {\n";
     }
     private String interfaceString() {

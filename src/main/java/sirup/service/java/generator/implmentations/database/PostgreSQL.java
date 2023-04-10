@@ -151,6 +151,9 @@ public final class PostgreSQL extends AbstractDatabase {
         @Override
         public void fillFile(FileWriter fileWriter) throws IOException {
             for (DataModel dataModel : this.dataModels) {
+                if (dataModel.getDataFields() == null || dataModel.getDataFields().isEmpty()) {
+                    continue;
+                }
                 fileWriter.write("CREATE TABLE " + uncapitalize(dataModel.getName()) + "s (\n");
                 fileWriter.write(tab(1) + dataModel.getDataFields().get(0).name() + " " + toSqlType(dataModel.getDataFields().get(0).type()) + " UNIQUE NOT NULL,\n");
                 for (int i = 1; i < dataModel.getDataFields().size(); i++) {
@@ -238,6 +241,9 @@ public final class PostgreSQL extends AbstractDatabase {
                         }};
                         classGenerator.generateAnnotation(Annotations.OVERRIDE);
                         classGenerator.generateMethod("add", BOOLEAN.type, typeArg, () -> {
+                            if (this.dataModel.getDataFields() == null || this.dataModel.getDataFields().isEmpty()) {
+                                return;
+                            }
                             classGenerator.generateTryCatch(() -> {
                                 String insertStatement = "\"INSERT INTO " + uncapitalize(this.dataModel.getName()) + "s (" +
                                         this.dataModel.getDataFields().stream().map(DataField::name).collect(Collectors.joining(", ")) +
@@ -279,6 +285,9 @@ public final class PostgreSQL extends AbstractDatabase {
                         });
                         classGenerator.generateAnnotation(Annotations.OVERRIDE);
                         classGenerator.generateMethod("get", t, idArg, () -> {
+                            if (this.dataModel.getDataFields() == null || this.dataModel.getDataFields().isEmpty()) {
+                                return;
+                            }
                             classGenerator.generateTryCatch(() -> {
                                 String getStatement = "\"SELECT * FROM " + uncapitalize(this.dataModel.getName()) +
                                         "s WHERE " + this.dataModel.getDataFields().get(0).name() + " = ?;\"";
@@ -299,6 +308,9 @@ public final class PostgreSQL extends AbstractDatabase {
                         });
                         classGenerator.generateAnnotation(Annotations.OVERRIDE);
                         classGenerator.generateMethod("update", BOOLEAN.type, typeArg, () -> {
+                            if (this.dataModel.getDataFields() == null || this.dataModel.getDataFields().isEmpty()) {
+                                return;
+                            }
                             classGenerator.generateTryCatch(() -> {
                                 List<String> setStrings = new ArrayList<>();
                                 for (int i = 1; i < this.dataModel.getDataFields().size(); i++) {
@@ -322,6 +334,9 @@ public final class PostgreSQL extends AbstractDatabase {
                         });
                         classGenerator.generateAnnotation(Annotations.OVERRIDE);
                         classGenerator.generateMethod("remove", BOOLEAN.type, idArg, () -> {
+                            if (this.dataModel.getDataFields() == null || this.dataModel.getDataFields().isEmpty()) {
+                                return;
+                            }
                             classGenerator.generateTryCatch(() -> {
                                 String deleteStatemnet = "\"DELETE FROM " + uncapitalize(this.dataModel.getName()) + "s WHERE " +
                                         this.dataModel.getDataFields().get(0).name() + " = ?;\"";
