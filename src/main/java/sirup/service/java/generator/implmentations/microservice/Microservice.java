@@ -21,7 +21,6 @@ import sirup.service.java.generator.implmentations.service.AbstractService;
 import sirup.service.java.generator.interfaces.api.IApi;
 import sirup.service.java.generator.interfaces.api.IApiBuilder;
 import sirup.service.java.generator.interfaces.buildtool.IBuildTool;
-import sirup.service.java.generator.interfaces.buildtool.IBuildToolBuilder;
 import sirup.service.java.generator.interfaces.common.Generateable;
 import sirup.service.java.generator.interfaces.database.IDatabase;
 import sirup.service.java.generator.interfaces.database.IDatabaseBuilder;
@@ -213,9 +212,6 @@ public final class Microservice extends AbstractGenerateable {
         public MicroserviceBuilder api(IApi api) {
             this.microservice.setApi(api);
             return this;
-        }
-        public MicroserviceBuilder buildTool(IBuildToolBuilder<? extends IBuildTool> buildToolBuilder) {
-            return this.buildTool(buildToolBuilder.build());
         }
         public MicroserviceBuilder buildTool(IBuildTool buildTool) {
             this.microservice.setBuildTool(buildTool);

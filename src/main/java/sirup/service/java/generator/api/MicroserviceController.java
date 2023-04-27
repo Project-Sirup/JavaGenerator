@@ -3,9 +3,9 @@ package sirup.service.java.generator.api;
 import com.google.gson.Gson;
 import sirup.service.java.generator.implmentations.microservice.LanguageNotSupportedException;
 import sirup.service.java.generator.implmentations.microservice.Microservice;
-import sirup.service.java.generator.implmentations.api.NoSuchApiException;
+import sirup.service.java.generator.implmentations.api.ApiNotSupportedException;
 import sirup.service.java.generator.implmentations.buildtool.NoSuchBuildToolException;
-import sirup.service.java.generator.implmentations.database.NoSuchDatabaseException;
+import sirup.service.java.generator.implmentations.database.DatabaseNotSupportedException;
 import spark.Request;
 import spark.Response;
 
@@ -26,7 +26,7 @@ public class MicroserviceController {
             String microserviceId = microservice.make();
             return this.gson.toJson(new ReturnObj<>(201, "Microservice created",
                     "http://127.0.0.1:" + Env.API_PORT + Env.API_BASE_URL + "/microservice/" + microserviceId));
-        } catch (NoSuchApiException | NoSuchDatabaseException | NoSuchBuildToolException | LanguageNotSupportedException e) {
+        } catch (ApiNotSupportedException | DatabaseNotSupportedException | NoSuchBuildToolException | LanguageNotSupportedException e) {
             e.printStackTrace();
             halt(405, e.getMessage());
         }

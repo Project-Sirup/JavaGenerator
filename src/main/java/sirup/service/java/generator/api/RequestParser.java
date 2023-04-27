@@ -3,7 +3,7 @@ package sirup.service.java.generator.api;
 import com.google.gson.Gson;
 import sirup.service.java.generator.implmentations.microservice.LanguageNotSupportedException;
 import sirup.service.java.generator.implmentations.microservice.Microservice;
-import sirup.service.java.generator.implmentations.api.APIs;
+import sirup.service.java.generator.implmentations.api.Apis;
 import sirup.service.java.generator.implmentations.buildtool.BuildTools;
 import sirup.service.java.generator.implmentations.common.Endpoint;
 import sirup.service.java.generator.implmentations.common.EndpointGroup;
@@ -44,7 +44,7 @@ public class RequestParser {
                 .groupId(m.microservice()
                         .language()
                         .options().groupId())
-                .api(APIs.ofType(m.microservice()
+                .api(Apis.ofType(m.microservice()
                                 .api()
                                 .type())
                         .options(m.microservice()
@@ -55,6 +55,7 @@ public class RequestParser {
                                 .database()
                                 .name())
                         .dataModels(DATA_MODEL_MAP.values().stream().toList())
+                        .options(m.microservice().database().options())
                 )
                 .buildTool(BuildTools.ofType(m.microservice()
                         .language()
@@ -79,15 +80,17 @@ public class RequestParser {
     public static EndpointGroup.EndpointGroupBuilder iterateEndpointGroups(MicroserviceRequest.Microservice.Api.Options.EndpointGroup endpointGroup, int index) {
         EndpointGroup.EndpointGroupBuilder endpointGroupBuilder = EndpointGroup.builder();
         endpointGroupBuilder.groupName(endpointGroup.groupName());
-        if (!endpointGroup.endpoints().isEmpty()) {
+        if (endpointGroup.endpoints() != null && !endpointGroup.endpoints().isEmpty()) {
             addEndpoints(endpointGroupBuilder, endpointGroup.endpoints());
         }
         if (endpointGroup.linkedData() != null) {
             endpointGroupBuilder.controller(Controller.of(DATA_MODEL_MAP.get(endpointGroup.linkedData())));
         }
-        for (MicroserviceRequest.Microservice.Api.Options.EndpointGroup innerGroup : endpointGroup.innerGroups()) {
-            EndpointGroup.EndpointGroupBuilder innerGroupBuilder = iterateEndpointGroups(innerGroup, index);
-            endpointGroupBuilder.innerGroup(innerGroupBuilder.build());
+        if (endpointGroup.innerGroups() != null && !endpointGroup.innerGroups().isEmpty()) {
+            for (MicroserviceRequest.Microservice.Api.Options.EndpointGroup innerGroup : endpointGroup.innerGroups()) {
+                EndpointGroup.EndpointGroupBuilder innerGroupBuilder = iterateEndpointGroups(innerGroup, index);
+                endpointGroupBuilder.innerGroup(innerGroupBuilder.build());
+            }
         }
         ++index;
         return endpointGroupBuilder;

@@ -1,6 +1,8 @@
 {
   "sirup_v": 1,
-  "acceptedFormats": ["json"],
+  "acceptedFormats": [
+    "json"
+  ],
   "templates": [],
   "languages": [
     {
@@ -9,12 +11,15 @@
       "options": [
         {
           "buildTool": {
-            "selection": ["Maven","Gradle"]
+            "selection": [
+              "Maven",
+              "Gradle"
+            ]
           }
         },
         {
           "groupId": {
-            "value": "dataTypes.simple.string"
+            "value": "string"
           }
         }
       ]
@@ -25,12 +30,15 @@
       "options": [
         {
           "buildTool": {
-            "selection": ["Maven","Gradle"]
+            "selection": [
+              "Maven",
+              "Gradle"
+            ]
           }
         },
         {
           "groupId": {
-            "value": "dataTypes.simple.string"
+            "value": "string"
           }
         }
       ]
@@ -43,17 +51,81 @@
       "options": [
         {
           "port": {
-            "value": "dataTypes.simple.int32"
+            "value": "number"
           }
         },
         {
           "endpoints": {
-            "value": ["dataTypes.complex.endpoint"]
+            "repeated": {
+              "object": {
+                "name": "endpoint",
+                "values": [
+                  {
+                    "name": "method",
+                    "selection": [
+                      "GET",
+                      "POST",
+                      "PUT",
+                      "DELETE"
+                    ]
+                  },
+                  {
+                    "name": "path",
+                    "value": "string"
+                  },
+                  {
+                    "name": "linkedMethod",
+                    "value": "string"
+                  }
+                ]
+              }
+            }
           }
         },
         {
           "endpointGroups": {
-            "value": ["dataTypes.complex.endpointGroup"]
+            "repeated": {
+              "object": {
+                "name": "endpointGroup",
+                "values": [
+                  {
+                    "name": "groupName",
+                    "value": "string"
+                  },
+                  {
+                    "name": "endpoints",
+                    "repeated": {
+                      "object": {
+                        "name": "endpoint",
+                        "values": [
+                          {
+                            "name": "method",
+                            "selection": [
+                              "GET",
+                              "POST",
+                              "PUT",
+                              "DELETE"
+                            ]
+                          },
+                          {
+                            "name": "path",
+                            "value": "string"
+                          },
+                          {
+                            "name": "linkedMethod",
+                            "value": "string"
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "name": "linkedData",
+                    "value": "string"
+                  }
+                ]
+              }
+            }
           }
         }
       ]
@@ -64,17 +136,21 @@
       "options": [
         {
           "port": {
-            "value": "dataTypes.simple.int32"
+            "value": "number"
           }
         },
         {
           "procedures": {
-            "value": ["dataTypes.complex.procedure"]
+            "multi": [
+              "dataTypes.complex.procedure"
+            ]
           }
         },
         {
           "messages": {
-            "value": ["dataTypes.complex.message"]
+            "multi": [
+              "dataTypes.complex.message"
+            ]
           }
         }
       ]
@@ -103,44 +179,24 @@
     }
   ],
   "dataTypes": {
-    "simple": {
-      "any": {},
-      "string": {},
-      "int32": {},
-      "int64": {},
-      "float": {},
-      "boolean": {}
-    },
     "complex": {
-      "endpoint": {
-        "fields": [
-          {
-            "name": "method",
-            "selection": ["get","post","put","delete"]
-          },
-          {
-            "name": "path",
-            "value": "dataTypes.simple.string"
-          },
-          {
-            "name": "linkedMethod",
-            "value": "dataTypes.simple.string"
-          }
-        ]
-      },
       "endpointGroup": {
         "fields": [
           {
             "name": "groupName",
-            "type": "dataTypes.simple.string"
+            "type": "string"
           },
           {
             "name": "innerGroups",
-            "type": ["dataTypes.complex.endpointGroup"]
+            "type": [
+              "dataTypes.complex.endpointGroup"
+            ]
           },
           {
             "name": "endpoints",
-            "type": ["dataTypes.complex.endpoint"]
+            "type": [
+              "dataTypes.complex.endpoint"
+            ]
           },
           {
             "name": "linkedData",
@@ -152,15 +208,15 @@
         "fields": [
           {
             "name": "procedureName",
-            "value": "dataTypes.simple.string"
+            "value": "string"
           },
           {
             "name": "requestMessage",
-            "value": "dataTypes.complex.string"
+            "value": "string"
           },
           {
             "name": "responseMessage",
-            "value": "dataTypes.complex.string"
+            "value": "string"
           }
         ]
       },
@@ -168,11 +224,13 @@
         "fields": [
           {
             "name": "messageName",
-            "value": "dataTypes.simple.string"
+            "value": "string"
           },
           {
             "name": "messageBody",
-            "value": ["dataTypes.complex.messageField"]
+            "value": [
+              "dataTypes.complex.messageField"
+            ]
           }
         ]
       },
@@ -180,11 +238,11 @@
         "fields": [
           {
             "name": "fieldName",
-            "value": "dataTypes.simple.string"
+            "value": "string"
           },
           {
             "name": "fieldType",
-            "value": "dataTypes.simple.string"
+            "value": "string"
           }
         ]
       }

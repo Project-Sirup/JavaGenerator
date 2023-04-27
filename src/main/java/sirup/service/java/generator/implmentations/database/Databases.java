@@ -16,7 +16,7 @@ public final class Databases {
             case "mongo", "mongodb" -> {
                 return MongoDB.builder();
             }
-            default -> throw new NoSuchDatabaseException("Database [" + database + "] is not supported");
+            default -> throw new DatabaseNotSupportedException("Database [" + database + "] is not supported");
         }
     }
 }

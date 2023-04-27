@@ -18,7 +18,8 @@ import static spark.Spark.*;
 
 public class JavaGenApi {
 
-    private String serviceId = "";
+    private String serviceId = Env.SERVICE_ID;
+    private String serviceToken = Env.SERVICE_TOKEN;
     private String manifest;
 
     public JavaGenApi() {
@@ -103,7 +104,9 @@ public class JavaGenApi {
                     new RegistrationRequest.Registration(
                             "JavaGenerationService",
                             "http://localhost:" + Env.API_PORT + Env.API_BASE_URL + "/microservice",
-                            manifest)
+                            serviceId,
+                            manifest),
+                    serviceToken
             );
 
             HttpRequest request = HttpRequest.newBuilder()
@@ -114,7 +117,6 @@ public class JavaGenApi {
             HttpClient client = HttpClient.newBuilder().build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             System.out.println(response.body());
-            serviceId = response.body();
             return response.statusCode() == 200;
         } catch (URISyntaxException | IOException | InterruptedException e) {
             e.printStackTrace();
@@ -122,7 +124,7 @@ public class JavaGenApi {
 
         return false;
     }
-    private record RegistrationRequest(Registration registration) {
-        private record Registration(String serviceName, String serviceAddress, Object manifest) {}
+    private record RegistrationRequest(Registration registration, String serviceToken) {
+        private record Registration(String serviceName, String serviceAddress, String serviceId, Object manifest) {}
     }
 }

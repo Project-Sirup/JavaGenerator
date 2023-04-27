@@ -1,5 +1,6 @@
 package sirup.service.java.generator.implmentations.database;
 
+import sirup.service.java.generator.api.MicroserviceRequest;
 import sirup.service.java.generator.implmentations.common.AbstractGenerateable;
 import sirup.service.java.generator.implmentations.common.DataField;
 import sirup.service.java.generator.implmentations.common.classgeneration.*;
@@ -111,21 +112,17 @@ public final class PostgreSQL extends AbstractDatabase {
             this.postgreSQL = new PostgreSQL();
         }
 
-        public PostgreSQLBuilder dataModel(DataModel.DataModelBuilder dataModelBuilder) {
-            return this.dataModel(dataModelBuilder.build());
-        }
-        public PostgreSQLBuilder dataModel(DataModel dataModel) {
-            this.postgreSQL.addDataModel(dataModel);
-            this.postgreSQL.addService(PostgreSqlService.of(dataModel, this.postgreSQL));
-            return this;
-        }
-
         @Override
         public IDatabaseBuilder<PostgreSQL> dataModels(List<DataModel> dataModels) {
             this.postgreSQL.addDataModels(dataModels);
             for (DataModel dataModel : dataModels) {
                 this.postgreSQL.addService(PostgreSqlService.of(dataModel, this.postgreSQL));
             }
+            return this;
+        }
+
+        @Override
+        public IDatabaseBuilder<PostgreSQL> options(MicroserviceRequest.Microservice.Database.Options options) {
             return this;
         }
 

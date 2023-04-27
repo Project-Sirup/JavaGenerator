@@ -3,7 +3,7 @@ package sirup.service.java.generator.implmentations.api;
 import sirup.service.java.generator.interfaces.api.IApi;
 import sirup.service.java.generator.interfaces.api.IApiBuilder;
 
-public final class APIs {
+public final class Apis {
     public static IApiBuilder<? extends IApi> ofType(String api) {
         api = api.toLowerCase();
         switch (api) {
@@ -13,7 +13,7 @@ public final class APIs {
             case "grpc", "rpc" -> {
                 return Grpc.builder();
             }
-            default -> throw new NoSuchApiException("API [" + api + "] is not supported");
+            default -> throw new ApiNotSupportedException("API [" + api + "] is not supported");
         }
     }
 }

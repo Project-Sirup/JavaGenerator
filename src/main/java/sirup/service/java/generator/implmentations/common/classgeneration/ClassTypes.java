@@ -1,7 +1,6 @@
 package sirup.service.java.generator.implmentations.common.classgeneration;
 
 public class ClassTypes {
-
     public static ClassType INTERFACE() {
         return ClassGenerator::generateInterface;
     }

@@ -1,5 +1,6 @@
 package sirup.service.java.generator.implmentations.database;
 
+import sirup.service.java.generator.api.MicroserviceRequest;
 import sirup.service.java.generator.implmentations.common.classgeneration.ClassGenerator;
 import sirup.service.java.generator.implmentations.common.classgeneration.ClassTypes;
 import sirup.service.java.generator.implmentations.model.DataModel;
@@ -53,12 +54,12 @@ public class MongoDB extends AbstractDatabase {
         }
 
         @Override
-        public IDatabaseBuilder<MongoDB> dataModel(DataModel dataMOdel) {
+        public IDatabaseBuilder<MongoDB> dataModels(List<DataModel> dataModels) {
             return this;
         }
 
         @Override
-        public IDatabaseBuilder<MongoDB> dataModels(List<DataModel> dataModels) {
+        public IDatabaseBuilder<MongoDB> options(MicroserviceRequest.Microservice.Database.Options options) {
             return this;
         }
 

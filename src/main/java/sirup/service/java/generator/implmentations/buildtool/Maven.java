@@ -2,7 +2,6 @@ package sirup.service.java.generator.implmentations.buildtool;
 
 import sirup.service.java.generator.interfaces.common.Dependency;
 import sirup.service.java.generator.interfaces.buildtool.IBuildTool;
-import sirup.service.java.generator.interfaces.buildtool.IBuildToolBuilder;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -21,51 +20,52 @@ public final class Maven extends AbstractBuildTool implements IBuildTool {
         DEFAULT = new Maven();
         DEPENDENCY_MAP = new HashMap<>(){{
             put("rest", """
-                    <!-- REST -->
-                    <dependency>
-                    <groupId>com.sparkjava</groupId>
-                    <artifactId>spark-core</artifactId>
-                    <version>2.9.4</version></dependency>
-                    <dependency>
-                    <groupId>com.google.code.gson</groupId>
-                    <artifactId>gson</artifactId>
-                    <version>2.10</version>
-                    </dependency>
-                    <dependency>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                    <version>2.0.5</version>
-                    </dependency>
-                    <dependency>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-simple</artifactId>
-                    <version>2.0.5</version>
-                    </dependency>
-                    <!-- REST -->
+                            <!-- REST -->
+                            <dependency>
+                                <groupId>com.sparkjava</groupId>
+                                <artifactId>spark-core</artifactId>
+                                <version>2.9.4</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>com.google.code.gson</groupId>
+                                <artifactId>gson</artifactId>
+                                <version>2.10</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.slf4j</groupId>
+                                <artifactId>slf4j-api</artifactId>
+                                <version>2.0.5</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.slf4j</groupId>
+                                <artifactId>slf4j-simple</artifactId>
+                                <version>2.0.5</version>
+                            </dependency>
+                            <!-- REST -->
                     """);
             put("rcp", """
-                    <!-- RPC -->
-                    <dependency>
-                    <groupId>io.grpc</groupId>
-                    <artifactId>grpc-netty-shaded</artifactId>
-                    <version>1.15.1</version>
-                    </dependency>
-                    <dependency>
-                    <groupId>io.grpc</groupId>
-                    <artifactId>grpc-protobuf</artifactId>
-                    <version>1.15.1</version>
-                    </dependency>
-                    <dependency>
-                    <groupId>io.grpc</groupId>
-                    <artifactId>grpc-stub</artifactId>
-                    <version>1.15.1</version>
-                    </dependency>
-                    <!-- gRPC -->
+                            <!-- RPC -->
+                            <dependency>
+                                <groupId>io.grpc</groupId>
+                                <artifactId>grpc-netty-shaded</artifactId>
+                                <version>1.15.1</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>io.grpc</groupId>
+                                <artifactId>grpc-protobuf</artifactId>
+                                <version>1.15.1</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>io.grpc</groupId>
+                                <artifactId>grpc-stub</artifactId>
+                                <version>1.15.1</version>
+                            </dependency>
+                            <!-- gRPC -->
                     """);
         }};
     }
 
-    private Maven () {
+    Maven () {
         this.dependencies = new ArrayList<>();
     }
 
@@ -77,12 +77,8 @@ public final class Maven extends AbstractBuildTool implements IBuildTool {
     @Override
     public void updateDependencies(Dependency ...dependencies) {
         for (Dependency dependency : dependencies) {
-            this.dependencies.add(DEPENDENCY_MAP.get(dependency.getDependencyName()));
+            this.dependencies.add(DEPENDENCY_MAP.getOrDefault(dependency.getDependencyName(),""));
         }
-    }
-
-    static MavenBuilder builder() {
-        return new MavenBuilder();
     }
 
     @Override
@@ -151,16 +147,5 @@ public final class Maven extends AbstractBuildTool implements IBuildTool {
           </project>
           """
         );
-    }
-
-    public static class MavenBuilder implements IBuildToolBuilder<Maven> {
-        private final Maven maven;
-        private MavenBuilder() {
-            this.maven = new Maven();
-        }
-
-        public Maven build() {
-            return this.maven;
-        }
     }
 }
