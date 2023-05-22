@@ -21,6 +21,7 @@ import sirup.service.java.generator.implmentations.service.AbstractService;
 import sirup.service.java.generator.interfaces.api.IApi;
 import sirup.service.java.generator.interfaces.api.IApiBuilder;
 import sirup.service.java.generator.interfaces.buildtool.IBuildTool;
+import sirup.service.java.generator.interfaces.common.DockerService;
 import sirup.service.java.generator.interfaces.common.Generateable;
 import sirup.service.java.generator.interfaces.database.IDatabase;
 import sirup.service.java.generator.interfaces.database.IDatabaseBuilder;
@@ -34,6 +35,7 @@ import java.util.UUID;
 
 import static sirup.service.java.generator.implmentations.common.Type.*;
 import static sirup.service.java.generator.implmentations.common.StringUtil.*;
+import static sirup.service.log.rpc.client.ColorUtil.id;
 
 public final class Microservice extends AbstractGenerateable {
 
@@ -50,6 +52,8 @@ public final class Microservice extends AbstractGenerateable {
     private final List<AbstractInterface> interfaces;
     private Generateable dbInit;
     private final Generateable main;
+    private Generateable dockerCompose;
+    private boolean generateDocker;
 
     private Microservice() {
         //Default configuration
@@ -59,6 +63,7 @@ public final class Microservice extends AbstractGenerateable {
         this.name = "DEFAULT";
         this.packageName = ".microservice";
         this.groupId = "org.example";
+        this.generateDocker = false;
 
         ServiceInterface serviceInterface = new ServiceInterface();
         ModelInterface modelInterface = new ModelInterface();
@@ -100,6 +105,9 @@ public final class Microservice extends AbstractGenerateable {
         this.id = id;
         System.out.println(id);
     }
+    private void setGenerateDocker(boolean generateDocker) {
+        this.generateDocker = generateDocker;
+    }
     public List<AbstractInterface> getInterfaces() {
         return this.interfaces;
     }
@@ -131,7 +139,12 @@ public final class Microservice extends AbstractGenerateable {
         }
         fileGenerator.generate(this.dbInit);
         fileGenerator.generate(this.buildTool);
-        logger.info("Microservice [" + this.id + "] created in: " + (System.currentTimeMillis() - start) + "ms" );
+        if (this.generateDocker) {
+            fileGenerator.generate(this.database.getDockerfile());
+            fileGenerator.generate(this.api.getDockerfile());
+            fileGenerator.generate(this.dockerCompose);
+        }
+        logger.info("Microservice " + id(this.id) + " created in: " + (System.currentTimeMillis() - start) + "ms" );
         return this.id;
     }
 
@@ -202,6 +215,10 @@ public final class Microservice extends AbstractGenerateable {
             this.microservice.setName(name);
             return this;
         }
+        public MicroserviceBuilder docker(boolean docker) {
+            this.microservice.setGenerateDocker(docker);
+            return this;
+        }
         public MicroserviceBuilder groupId(String groupId) {
             this.microservice.setGroupId(groupId);
             return this;
@@ -229,6 +246,7 @@ public final class Microservice extends AbstractGenerateable {
             //TODO: simplify
             this.microservice.main.setGroupId(this.microservice.groupId);
             this.microservice.buildTool.updateDependencies(this.microservice.api, this.microservice.database);
+            this.microservice.buildTool.setGroupId(this.microservice.groupId);
             this.microservice.api.setGroupId(this.microservice.groupId);
             this.microservice.api.setContext(this.microservice.context);
             this.microservice.database.setGroupId(this.microservice.groupId);
@@ -247,6 +265,11 @@ public final class Microservice extends AbstractGenerateable {
             for (AbstractInterface generateable : this.microservice.interfaces) {
                 generateable.setGroupId(this.microservice.groupId);
                 generateable.setContext(this.microservice.context);
+            }
+            if (this.microservice.generateDocker) {
+                this.microservice.dockerCompose = new DockerComposeGenerator(
+                        this.microservice.api.getDockerService(),
+                        this.microservice.database.getDockerService());
             }
             return this.microservice;
         }
@@ -285,4 +308,5 @@ public final class Microservice extends AbstractGenerateable {
             return "Main";
         }
     }
+
 }

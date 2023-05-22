@@ -1,11 +1,14 @@
 package sirup.service.java.generator.implmentations.database;
 
 import sirup.service.java.generator.api.MicroserviceRequest;
+import sirup.service.java.generator.implmentations.common.AbstractDockerfile;
 import sirup.service.java.generator.implmentations.common.AbstractGenerateable;
 import sirup.service.java.generator.implmentations.common.DataField;
+import sirup.service.java.generator.implmentations.common.DockerGenerator;
 import sirup.service.java.generator.implmentations.common.classgeneration.*;
 import sirup.service.java.generator.implmentations.model.DataModel;
 import sirup.service.java.generator.implmentations.service.AbstractService;
+import sirup.service.java.generator.interfaces.common.DockerService;
 import sirup.service.java.generator.interfaces.common.Generateable;
 import sirup.service.java.generator.interfaces.database.IDatabase;
 import sirup.service.java.generator.interfaces.database.IDatabaseBuilder;
@@ -106,6 +109,16 @@ public final class PostgreSQL extends AbstractDatabase {
         return new Sql(this.dataModels);
     }
 
+    @Override
+    public Generateable getDockerfile() {
+        return new PostgresDocker();
+    }
+
+    @Override
+    public DockerService getDockerService() {
+        return new PostgresDockerService();
+    }
+
     public static class PostgreSQLBuilder implements IDatabaseBuilder<PostgreSQL> {
         private final PostgreSQL postgreSQL;
         private PostgreSQLBuilder() {
@@ -187,6 +200,47 @@ public final class PostgreSQL extends AbstractDatabase {
         @Override
         public String getDir() {
             return "";
+        }
+    }
+
+    public static class PostgresDocker extends AbstractDockerfile {
+
+        @Override
+        public String getName() {
+            return "postgres.dockerfile";
+        }
+
+        @Override
+        public void fillFile(FileWriter fileWriter) throws IOException {
+             DockerGenerator.builder()
+                     .from("postgreq:latest")
+                     .workdir("/app/database")
+                     .copy("./init.sql","/docker-entrypoint-initdb.d/init.sql")
+                     .build()
+                     .make();
+        }
+    }
+
+    public static class PostgresDockerService implements DockerService {
+
+        @Override
+        public String getName() {
+            return "postgres";
+        }
+
+        @Override
+        public int getInternalPort() {
+            return 1122;
+        }
+
+        @Override
+        public int getExternalPort() {
+            return 1122;
+        }
+
+        @Override
+        public String getBuildContext() {
+            return "./postgres.dockerfile";
         }
     }
 

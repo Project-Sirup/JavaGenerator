@@ -1,18 +1,21 @@
 package sirup.service.java.generator.implmentations.api;
 
 import sirup.service.java.generator.api.MicroserviceRequest;
-import sirup.service.java.generator.api.RequestParser;
 import sirup.service.java.generator.implmentations.common.*;
 import sirup.service.java.generator.implmentations.common.classgeneration.Access;
 import sirup.service.java.generator.implmentations.common.classgeneration.ClassGenerator;
 import sirup.service.java.generator.implmentations.common.classgeneration.ClassTypes;
 import sirup.service.java.generator.implmentations.controller.Controller;
+import sirup.service.java.generator.implmentations.model.DataModel;
 import sirup.service.java.generator.interfaces.api.IApiBuilder;
+import sirup.service.java.generator.interfaces.common.DockerService;
+import sirup.service.java.generator.interfaces.common.Generateable;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static sirup.service.java.generator.implmentations.common.Endpoint.HttpMethod.*;
@@ -23,6 +26,7 @@ public final class Rest extends AbstractApi {
 
     private final List<Endpoint> endpoints;
     private final List<EndpointGroup> endpointGroups;
+    private Map<String,DataModel> dataMap;
 
     public static final Rest DEFAULT;
     static {
@@ -51,6 +55,10 @@ public final class Rest extends AbstractApi {
 
     private void setPort(int port) {
         this.port = port;
+    }
+
+    private void setDataMap(Map<String,DataModel> dataMap) {
+        this.dataMap = dataMap;
     }
 
     private void addEndpoint(Endpoint endpoint) {
@@ -123,6 +131,46 @@ public final class Rest extends AbstractApi {
                 .make();
     }
 
+    private List<Endpoint> iterateEndpoints(
+            List<MicroserviceRequest.Microservice.Api.Options.Endpoint> inputEndpoints) {
+        List<Endpoint> endpoints = new ArrayList<>();
+        if (inputEndpoints != null) {
+            inputEndpoints.forEach(inputEndpoint -> {
+                endpoints.add(new Endpoint(Endpoint.HttpMethod.from(inputEndpoint.method()),
+                        inputEndpoint.path(), inputEndpoint.linkedMethod()));
+            });
+        }
+        return endpoints;
+    }
+
+    private EndpointGroup.EndpointGroupBuilder iterateEndpointGroups(
+            MicroserviceRequest.Microservice.Api.Options.EndpointGroup endpointGroup, int index) {
+        EndpointGroup.EndpointGroupBuilder endpointGroupBuilder = EndpointGroup.builder();
+        endpointGroupBuilder.groupName(endpointGroup.groupName());
+        if (endpointGroup.endpoints() != null && !endpointGroup.endpoints().isEmpty()) {
+            addEndpoints(endpointGroupBuilder, endpointGroup.endpoints());
+        }
+        if (endpointGroup.linkedData() != null) {
+            endpointGroupBuilder.controller(Controller.of(this.dataMap.get(endpointGroup.linkedData())));
+        }
+        if (endpointGroup.innerGroups() != null && !endpointGroup.innerGroups().isEmpty()) {
+            for (MicroserviceRequest.Microservice.Api.Options.EndpointGroup innerGroup : endpointGroup.innerGroups()) {
+                EndpointGroup.EndpointGroupBuilder innerGroupBuilder = iterateEndpointGroups(innerGroup, index);
+                endpointGroupBuilder.innerGroup(innerGroupBuilder.build());
+            }
+        }
+        ++index;
+        return endpointGroupBuilder;
+    }
+
+    private void addEndpoints(EndpointGroup.EndpointGroupBuilder endpointGroupBuilder,
+                              List<MicroserviceRequest.Microservice.Api.Options.Endpoint> endpoints) {
+        for (MicroserviceRequest.Microservice.Api.Options.Endpoint endpoint : endpoints) {
+            endpointGroupBuilder.endpoint(Endpoint.HttpMethod.from(endpoint.method()),
+                    endpoint.path(), endpoint.linkedMethod());
+        }
+    }
+
     private void recursiveEndpointGroups(ClassGenerator classGenerator, EndpointGroup endpointGroup, String groupPath, int index) throws IOException {
         if (!endpointGroup.getEndpoints().isEmpty()) {
             writeEndpoints(classGenerator, endpointGroup.getController(),groupPath + endpointGroup.getGroupName(), endpointGroup.getEndpoints());
@@ -151,25 +199,86 @@ public final class Rest extends AbstractApi {
         }
     }
 
+    @Override
+    public Generateable getDockerfile() {
+        return new RestDockerfile();
+    }
+
+    @Override
+    public DockerService getDockerService() {
+        return new RestDockerService();
+    }
+
     public static class RestBuilder implements IApiBuilder<Rest> {
         private final Rest rest;
+        private MicroserviceRequest.Microservice.Api.Options options;
         private RestBuilder() {
             this.rest = new Rest();
         }
 
         @Override
         public IApiBuilder<Rest> options(MicroserviceRequest.Microservice.Api.Options options) {
+            this.options = options;
             this.rest.setPort(options.port());
-            this.rest.addEndpoints(RequestParser.iterateEndpoints(options.endpoints()));
-            if (options.endpointGroups() != null) {
-                this.rest.addEndpointGroup(RequestParser.iterateEndpointGroups(options.endpointGroups().get(0),0).build());
-            }
+            this.rest.addEndpoints(this.rest.iterateEndpoints(options.endpoints()));
+            return this;
+        }
+
+        @Override
+        public IApiBuilder<Rest> dataMap(Map<String, DataModel> dataMap) {
+            this.rest.setDataMap(dataMap);
             return this;
         }
 
         @Override
         public Rest build() {
+            if (options.endpointGroups() != null && this.rest.dataMap != null) {
+                this.rest.addEndpointGroup(this.rest.iterateEndpointGroups(options.endpointGroups().get(0),0).build());
+            }
             return this.rest;
+        }
+    }
+
+    public static class RestDockerfile extends AbstractDockerfile {
+
+        @Override
+        public String getName() {
+            return "rest.dockerfile";
+        }
+
+        @Override
+        public void fillFile(FileWriter fileWriter) throws IOException {
+            DockerGenerator.builder()
+                    .from("java")
+                    .workdir("/app/api")
+                    .copy("./target", ".")
+                    .entrypoint("java", "-jar", "")
+                    .build()
+                    .make();
+
+        }
+    }
+
+    public static class RestDockerService implements DockerService {
+
+        @Override
+        public String getName() {
+            return "rest";
+        }
+
+        @Override
+        public int getInternalPort() {
+            return 2233;
+        }
+
+        @Override
+        public int getExternalPort() {
+            return 2233;
+        }
+
+        @Override
+        public String getBuildContext() {
+            return "./rest.dockerfile";
         }
     }
 }

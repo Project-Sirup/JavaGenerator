@@ -4,6 +4,7 @@ import sirup.service.java.generator.api.MicroserviceRequest;
 import sirup.service.java.generator.implmentations.common.classgeneration.ClassGenerator;
 import sirup.service.java.generator.implmentations.common.classgeneration.ClassTypes;
 import sirup.service.java.generator.implmentations.model.DataModel;
+import sirup.service.java.generator.interfaces.common.DockerService;
 import sirup.service.java.generator.interfaces.common.Generateable;
 import sirup.service.java.generator.interfaces.database.IDatabaseBuilder;
 
@@ -44,7 +45,17 @@ public class MongoDB extends AbstractDatabase {
 
     @Override
     public Generateable getDbInit() {
-        return new MongoDB();
+        return new MongoDB(); //TODO:
+    }
+
+    @Override
+    public Generateable getDockerfile() {
+        return new MongoDB(); //TODO:
+    }
+
+    @Override
+    public DockerService getDockerService() {
+        return null;
     }
 
     public static class MongoDBBuilder implements IDatabaseBuilder<MongoDB> {

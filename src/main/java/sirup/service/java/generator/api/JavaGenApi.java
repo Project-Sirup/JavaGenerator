@@ -2,17 +2,13 @@ package sirup.service.java.generator.api;
 
 import com.google.gson.Gson;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Optional;
-import java.util.Scanner;
 
 import static spark.Spark.*;
 
@@ -53,6 +49,7 @@ public class JavaGenApi {
             return "OK";
         }));
         path(Env.API_BASE_URL, () -> {
+            get("/health", (req, res) -> "ok");
             get("/manifest", (req, res) -> manifest);
             path("/microservice", () -> {
                 MicroserviceController microserviceController = new MicroserviceController();
@@ -63,19 +60,19 @@ public class JavaGenApi {
     }
 
     private String getManifestFromFile() {
-        try {
-            URL url = this.getClass().getClassLoader().getResource("manifest.json");
-            File docFile = new File(url.toURI());
-            try (Scanner input = new Scanner(docFile)) {
-                StringBuilder stringBuilder = new StringBuilder();
-                while (input.hasNextLine()) {
-                    stringBuilder.append(input.nextLine());
-                }
-                return stringBuilder.toString();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
+        try (InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("manifest.json")) {
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            String line = bufferedReader.readLine();
+            StringBuilder stringBuilder = new StringBuilder();
+            while (line != null) {
+                stringBuilder.append(line);
+                line = bufferedReader.readLine();
             }
-        } catch (URISyntaxException e) {
+            inputStreamReader.close();
+            bufferedReader.close();
+            return stringBuilder.toString();
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return "{}";
@@ -86,7 +83,7 @@ public class JavaGenApi {
             try {
                 HttpRequest request = HttpRequest.newBuilder()
                         .DELETE()
-                        .uri(new URI("http://127.0.0.1:2100/api/v1/" + this.serviceId))
+                        .uri(new URI("http://127.0.0.1:2100/api/v1/register/" + this.serviceId))
                         .build();
                 HttpClient client = HttpClient.newBuilder().build();
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -111,7 +108,7 @@ public class JavaGenApi {
 
             HttpRequest request = HttpRequest.newBuilder()
                     .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(registrationRequest)))
-                    .uri(new URI("http://localhost:2100/api/v1"))
+                    .uri(new URI("http://localhost:2100/api/v1/register"))
                     .build();
 
             HttpClient client = HttpClient.newBuilder().build();
