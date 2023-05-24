@@ -55,6 +55,9 @@ public final class Microservice extends AbstractGenerateable {
     private Generateable dockerCompose;
     private boolean generateDocker;
 
+    private List<Generateable> classes;
+    private List<Generateable> otherFile;
+
     private Microservice() {
         //Default configuration
         this.api = Rest.DEFAULT;
@@ -64,6 +67,8 @@ public final class Microservice extends AbstractGenerateable {
         this.packageName = ".microservice";
         this.groupId = "org.example";
         this.generateDocker = false;
+        this.classes = new ArrayList<>();
+        this.otherFile = new ArrayList<>();
 
         ServiceInterface serviceInterface = new ServiceInterface();
         ModelInterface modelInterface = new ModelInterface();
@@ -117,32 +122,13 @@ public final class Microservice extends AbstractGenerateable {
         if (this.id == null || this.id.isEmpty()) {
             this.id = UUID.randomUUID().toString();
         }
-        //logger.info("Generating service [" + this.id + "] -> " + this.api.getName() + " : " + this.database.getName());
         FileGenerator fileGenerator = new FileGenerator(this.id, this.getName(), this.groupId);
         fileGenerator.generateFileStructure();
-        fileGenerator.generateClassFile(this);
-        fileGenerator.generateClassFile(this.main);
-        fileGenerator.generateClassFile(this.api);
-        fileGenerator.generateClassFile(this.database);
-        for (Controller controller : this.api.getControllers()) {
-            fileGenerator.generateClassFile(controller);
+        for (Generateable clazz : this.classes) {
+            fileGenerator.generateClassFile(clazz);
         }
-        for (AbstractService service : this.database.getServices()) {
-            fileGenerator.generateClassFile(service);
-        }
-        for (DataModel dataModel : this.database.getDataModels()) {
-            fileGenerator.generateClassFile(dataModel);
-        }
-        fileGenerator.generateClassFile(this.context);
-        for (Generateable generateable : this.interfaces) {
-            fileGenerator.generateClassFile(generateable);
-        }
-        fileGenerator.generate(this.dbInit);
-        fileGenerator.generate(this.buildTool);
-        if (this.generateDocker) {
-            fileGenerator.generate(this.database.getDockerfile());
-            fileGenerator.generate(this.api.getDockerfile());
-            fileGenerator.generate(this.dockerCompose);
+        for (Generateable file : this.otherFile) {
+            fileGenerator.generateClassFile(file);
         }
         logger.info("Microservice " + id(this.id) + " created in: " + (System.currentTimeMillis() - start) + "ms" );
         return this.id;
@@ -245,31 +231,42 @@ public final class Microservice extends AbstractGenerateable {
         public Microservice build() {
             //TODO: simplify
             this.microservice.main.setGroupId(this.microservice.groupId);
+            this.microservice.classes.add(this.microservice.main);
             this.microservice.buildTool.updateDependencies(this.microservice.api, this.microservice.database);
             this.microservice.buildTool.setGroupId(this.microservice.groupId);
+            this.microservice.otherFile.add(this.microservice.buildTool);
             this.microservice.api.setGroupId(this.microservice.groupId);
             this.microservice.api.setContext(this.microservice.context);
+            this.microservice.classes.add(this.microservice.api);
             this.microservice.database.setGroupId(this.microservice.groupId);
+            this.microservice.classes.add(this.microservice.database);
             this.microservice.dbInit = this.microservice.database.getDbInit();
+            this.microservice.otherFile.add(this.microservice.dbInit);
             for (Controller controller : this.microservice.api.getControllers()) {
                 controller.setContext(this.microservice.context);
                 controller.setGroupId(this.microservice.groupId);
+                this.microservice.classes.add(controller);
             }
             for (AbstractService service : this.microservice.database.getServices()) {
                 service.setGroupId(this.microservice.groupId);
+                this.microservice.classes.add(service);
             }
             for (DataModel dataModel : this.microservice.database.getDataModels()) {
                 dataModel.setGroupId(this.microservice.groupId);
+                this.microservice.classes.add(dataModel);
             }
             this.microservice.context.setGroupId(this.microservice.groupId);
+            this.microservice.classes.add(this.microservice.context);
             for (AbstractInterface generateable : this.microservice.interfaces) {
                 generateable.setGroupId(this.microservice.groupId);
                 generateable.setContext(this.microservice.context);
+                this.microservice.classes.add(generateable);
             }
             if (this.microservice.generateDocker) {
                 this.microservice.dockerCompose = new DockerComposeGenerator(
                         this.microservice.api.getDockerService(),
                         this.microservice.database.getDockerService());
+                this.microservice.otherFile.add(this.microservice.dockerCompose);
             }
             return this.microservice;
         }
