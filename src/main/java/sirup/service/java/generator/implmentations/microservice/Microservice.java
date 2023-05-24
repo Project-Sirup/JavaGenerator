@@ -128,7 +128,7 @@ public final class Microservice extends AbstractGenerateable {
             fileGenerator.generateClassFile(clazz);
         }
         for (Generateable file : this.otherFile) {
-            fileGenerator.generateClassFile(file);
+            fileGenerator.generate(file);
         }
         logger.info("Microservice " + id(this.id) + " created in: " + (System.currentTimeMillis() - start) + "ms" );
         return this.id;
