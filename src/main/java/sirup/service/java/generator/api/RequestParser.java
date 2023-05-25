@@ -16,22 +16,11 @@ public class RequestParser {
     private static final Gson GSON = new Gson();
 
     public static Microservice fromJsonRequest(MicroserviceRequest m) {
-        Map<String, DataModel> dataModelMap = new HashMap<>();
-        m.microservice().database().data().collections().forEach(collection -> {
-            DataModel.DataModelBuilder dataModelBuilder = DataModel.builder();
-            dataModelBuilder.name(collection.name());
-            if (collection.fields() != null) {
-                collection.fields().forEach(field -> {
-                    dataModelBuilder.dataField(field.type(), field.name(), field.ref());
-                });
-            }
-            dataModelMap.put(collection.name(), dataModelBuilder.build());
-        });
+        Map<String, DataModel> dataModelMap = buildDataModelMap(m);
         String lang = m.microservice().language().name().toLowerCase();
         if (!lang.equals("java")) {
             throw new LanguageNotSupportedException("Language [" + lang + "] is not supported");
         }
-
         return Microservice.builder()
                 .id(m.microservice().microserviceId())
                 .docker(m.docker())
@@ -50,5 +39,19 @@ public class RequestParser {
     }
     public static Microservice fromJsonRequest(String json) {
         return RequestParser.fromJsonRequest(GSON.fromJson(json, MicroserviceRequest.class));
+    }
+    private static Map<String,DataModel> buildDataModelMap(MicroserviceRequest m) {
+        Map<String, DataModel> dataModelMap = new HashMap<>();
+        m.microservice().database().data().collections().forEach(collection -> {
+            DataModel.DataModelBuilder dataModelBuilder = DataModel.builder();
+            dataModelBuilder.name(collection.name());
+            if (collection.fields() != null) {
+                collection.fields().forEach(field -> {
+                    dataModelBuilder.dataField(field.type(), field.name(), field.ref());
+                });
+            }
+            dataModelMap.put(collection.name(), dataModelBuilder.build());
+        });
+        return dataModelMap;
     }
 }

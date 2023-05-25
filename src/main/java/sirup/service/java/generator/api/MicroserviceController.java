@@ -25,7 +25,7 @@ public class MicroserviceController {
             Microservice microservice = Microservice.fromJsonRequest(request.body());
             String microserviceId = microservice.make();
             return this.gson.toJson(new ReturnObj<>(201, "Microservice created",
-                    "http://127.0.0.1:" + Env.API_PORT + Env.API_BASE_URL + "/microservice/" + microserviceId));
+                    Env.API_ADDRESS + ":" + Env.API_PORT + Env.API_BASE_URL + "/microservice/" + microserviceId));
         } catch (ApiNotSupportedException | DatabaseNotSupportedException | NoSuchBuildToolException | LanguageNotSupportedException e) {
             e.printStackTrace();
             halt(405, e.getMessage());
