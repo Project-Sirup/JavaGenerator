@@ -14,8 +14,8 @@ import static spark.Spark.*;
 
 public class JavaGenApi {
 
-    private String serviceId = Env.SERVICE_ID;
-    private String serviceToken = Env.SERVICE_TOKEN;
+    private String serviceId = Env.JAVA_GEN_SERVICE_ID;
+    private String serviceToken = Env.JAVA_GEN_SERVICE_TOKEN;
     private String manifest;
 
     public JavaGenApi() {
@@ -28,7 +28,7 @@ public class JavaGenApi {
         }
         registerShutdown();
 
-        port(Env.API_PORT);
+        port(Env.JAVA_GEN_PORT);
         before("*",(request, response) -> {
             response.header("Access-Control-Allow-Origin", "*");
             response.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
@@ -48,7 +48,7 @@ public class JavaGenApi {
             response.status(200);
             return "OK";
         }));
-        path(Env.API_BASE_URL, () -> {
+        path("/api/v1", () -> {
             get("/health", (req, res) -> "ok");
             get("/manifest", (req, res) -> manifest);
             path("/microservice", () -> {
@@ -83,7 +83,7 @@ public class JavaGenApi {
             try {
                 HttpRequest request = HttpRequest.newBuilder()
                         .DELETE()
-                        .uri(new URI("http://127.0.0.1:2100/api/v1/register/" + this.serviceId))
+                        .uri(new URI("http://registerservice:2100/api/v1/register/" + this.serviceId))
                         .build();
                 HttpClient client = HttpClient.newBuilder().build();
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -100,7 +100,7 @@ public class JavaGenApi {
             RegistrationRequest registrationRequest = new RegistrationRequest(
                     new RegistrationRequest.Registration(
                             "JavaGenerationService",
-                            "http://localhost:" + Env.API_PORT + Env.API_BASE_URL + "/microservice",
+                            Env.JAVA_GEN_ADDRESS + ":" + Env.JAVA_GEN_PORT + "/api/v1/microservice",
                             serviceId,
                             manifest),
                     serviceToken
@@ -108,7 +108,7 @@ public class JavaGenApi {
 
             HttpRequest request = HttpRequest.newBuilder()
                     .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(registrationRequest)))
-                    .uri(new URI("http://localhost:2100/api/v1/register"))
+                    .uri(new URI("http://registerservice:2100/api/v1/register"))
                     .build();
 
             HttpClient client = HttpClient.newBuilder().build();

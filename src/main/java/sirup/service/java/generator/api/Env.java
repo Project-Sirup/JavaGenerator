@@ -1,19 +1,18 @@
 package sirup.service.java.generator.api;
 
-import io.github.cdimascio.dotenv.Dotenv;
-
 public class Env {
-    public static final String API_ADDRESS;
-    public static final int API_PORT;
-    public static final String API_BASE_URL;
-    public static final String SERVICE_TOKEN;
-    public static final String SERVICE_ID;
+    public static final String JAVA_GEN_ADDRESS;
+    public static final int JAVA_GEN_PORT;
+    public static final String JAVA_GEN_SERVICE_TOKEN;
+    public static final String JAVA_GEN_SERVICE_ID;
+    public static final String LOG_ADDRESS;
+    public static final int LOG_PORT;
     static {
-        Dotenv dotenv = Dotenv.load();
-        API_ADDRESS = dotenv.get("API_ADDRESS");
-        API_PORT = Integer.parseInt(dotenv.get("API_PORT"));
-        API_BASE_URL = dotenv.get("API_BASE_URL");
-        SERVICE_TOKEN = dotenv.get("SERVICE_TOKEN");
-        SERVICE_ID = dotenv.get("SERVICE_ID");
+        JAVA_GEN_ADDRESS = System.getenv("JAVA_GEN_ADDRESS");
+        JAVA_GEN_PORT = Integer.parseInt(System.getenv("JAVA_GEN_PORT"));
+        JAVA_GEN_SERVICE_TOKEN = System.getenv("JAVA_GEN_SERVICE_TOKEN");
+        JAVA_GEN_SERVICE_ID = System.getenv("JAVA_GEN_SERVICE_ID");
+        LOG_ADDRESS = System.getenv("LOG_ADDRESS");
+        LOG_PORT = Integer.parseInt(System.getenv("LOG_PORT"));
     }
 }
