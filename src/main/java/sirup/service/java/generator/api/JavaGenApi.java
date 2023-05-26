@@ -83,7 +83,7 @@ public class JavaGenApi {
             try {
                 HttpRequest request = HttpRequest.newBuilder()
                         .DELETE()
-                        .uri(new URI("http://registerservice:2100/api/v1/register/" + this.serviceId))
+                        .uri(new URI(Env.REG_ADDRESS + ":" + Env.REG_PORT + "/api/v1/register/" + this.serviceId))
                         .build();
                 HttpClient client = HttpClient.newBuilder().build();
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -108,7 +108,7 @@ public class JavaGenApi {
 
             HttpRequest request = HttpRequest.newBuilder()
                     .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(registrationRequest)))
-                    .uri(new URI("http://registerservice:2100/api/v1/register"))
+                    .uri(new URI(Env.REG_ADDRESS + ":" + Env.REG_PORT + "/api/v1/register"))
                     .build();
 
             HttpClient client = HttpClient.newBuilder().build();
